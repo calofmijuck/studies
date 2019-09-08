@@ -1,1 +1,126 @@
 \section{Image Classification}
+\subsection{Image Classification}
+\begin{itemize}
+	\item Map: Input Image $\rightarrow$ Predetermined Category
+	\item Semantic Gap - computers only see the pixel values of the image
+	\item Many problems that cause the pixel values to change
+	\begin{itemize}
+		\item Viewpoints
+		\item Illumination
+		\item Deformation (poses)
+		\item Occlusion (part of the object)
+		\item Background Clutter (object looks similar to the background)
+		\item Interclass Variation (objects come in different sizes and shapes)
+	\end{itemize}
+	\item Image classification algorithms must be able to handle all these problems
+\end{itemize}
+
+\subsection{Attempts to Classify Images}
+\begin{itemize}
+	\item Finding corners or edges to determine the object
+	\begin{itemize}
+		\item Brittle, doesn't work very well
+		\item \textbf{Not scalable} to work with other objects
+	\end{itemize}
+	\item \textbf{Data-Driven Approach}
+	\begin{enumerate}
+		\item Collect a dataset of images and labels
+		\item Use ML algorithms to train a classifier
+		\item Evaluate the classifier on new images
+	\end{enumerate}
+	\item Data-driven approach is much more general
+\end{itemize}
+
+\subsection{Nearest Neighbor}
+\begin{enumerate}
+	\item Memorize all data and labels
+	\item Predict the label of the \textbf{most similar} training image
+\end{enumerate}
+\begin{itemize}
+	\item How to compare images? \textbf{Distance Metric} !
+	\begin{itemize}
+		\item $L_1$ distance (Manhatten Distance)\footnote{Dumb way to compare, but does reasonable things \textit{sometimes} ...}
+		$$d_1(I_1, I_2) = \sum_{\textrm{pixel } p} \abs{I_1^p - I_2^p}$$
+	\end{itemize}
+	\item With $N$ examples, training takes $\mc{O}(1)$, prediction takes $\mc{O}(N)$.
+	\item Generally, we want prediction to be fast, but slow training time is OK
+	\item Only looking at a \textbf{single} neighbor may cause problems (outliers, noisy data, etc.)
+	\item Motivation for \textbf{kNN}s
+\end{itemize}
+
+\subsection{$k$-Nearest Neighbors}
+\begin{itemize}
+	\item Take the \textbf{majority vote} from $k$ closest points
+	\item $L_2$ distance (Euclidean Distance)
+	$$d_2(I_1, I_2) = \sqrt{\sum_{\textrm{pixel } p} \left(I_1^p - I_2^p\right)^2}$$
+	\item $L_1$ distance depends on the coordinate system $L_2$ doesn't matter
+	\item Generalizing the distance metric can lead to classifying other objects such as texts
+\end{itemize}
+
+\subsection{Hyperparameters}
+\begin{itemize}
+	\item \textbf{Hyperparameters} are choices about the algorithm that we set, rather than by learning the parameter from data
+	\item In kNNs, the value of $k$ and the distance metric are hyperparameters
+	\item \textbf{Problem dependent}. Must go through trial and error to choose the best hyperparameter
+	\item Setting Hyperparameters
+	\begin{itemize}
+		\item Split the data into 3 sets. Training set, validation set, and test set
+		\item Train the algorithm with many different hyperparameters on the training set
+		\item Evaluate with validation set, choose the best hyperparameter from the results
+		\item Run it once on the test set, and this result goes on the paper
+	\end{itemize}
+	\item Never used on image data ...
+	\begin{itemize}
+		\item Slow on prediction
+		\item Distance metrics on pixels are not informative (Distance metric may not caputre the difference between images)
+		\item Curse of dimensionality - data points increase exponentially as dimension increases, but there may not be enough data to cover the area densly (Need to densly cover the regions of the $n$-dimensional space, for the kNNs to work well)
+	\end{itemize}
+\end{itemize}
+
+\subsection{Linear Classification}
+\begin{itemize}
+	\item Lego blocks - different components, as building blocks of neural networks
+	\item \textbf{Parametric Approach}
+	\begin{itemize}
+		\item Image $x$, weight parameters $W$ for each pixel in the image
+		\item A function $f : (x, W) \rightarrow$ numbers giving class scores for each class
+		\item If input $x$ is an $n\times 1$ vector and there were $c$ classes, $W$ must be $c\times n$ matrix
+	\end{itemize}
+	\item Classifier summarizes our knowlegde on the data and store it inside the parameter $W$
+	\item At test time, we use the parameter $W$ to predict
+	\item How to come up with the right structure for $f$ ?
+	\item \textbf{Linear} Classifier : $f(x, W) = Wx$ $(+\, b)$
+	\item There may be a bias term $b$ to show preference for some class label
+	\item (Idea) Each row of $W$ will work as a template for matching the input image, and the dot product of each row and the input image vector will give the \textbf{similarity} of the input data to the class
+	\item Problems with linear classifier
+	\begin{itemize}
+		\item Learning single template for each class
+		\item If the class has variations on how the class might appear, the classifier averages out all the variations and tries to recognize the object by a single template
+		\item Using deeper models to remove this restriction will lead to better accuracy
+	\end{itemize}
+	\item Linear classifiers draws hyperplanes on the $n$-dimensional space to classify images
+	\item If hyperplanes cannot be drawn on the space, the linear classifier may struggle (parity problem, multi-modal data)
+\end{itemize}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
