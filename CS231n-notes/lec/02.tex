@@ -39,7 +39,7 @@
 \begin{itemize}
 	\item How to compare images? \textbf{Distance Metric} !
 	\begin{itemize}
-		\item $L_1$ distance (Manhatten Distance)\footnote{Dumb way to compare, but does reasonable things \textit{sometimes} ...}
+		\item $L_1$ distance (Manhattan Distance)\footnote{Dumb way to compare, but does reasonable things \textit{sometimes} ...}
 		$$d_1(I_1, I_2) = \sum_{\textrm{pixel } p} \abs{I_1^p - I_2^p}$$
 	\end{itemize}
 	\item With $N$ examples, training takes $\mc{O}(1)$, prediction takes $\mc{O}(N)$.
@@ -72,8 +72,8 @@
 	\item Never used on image data ...
 	\begin{itemize}
 		\item Slow on prediction
-		\item Distance metrics on pixels are not informative (Distance metric may not caputre the difference between images)
-		\item Curse of dimensionality - data points increase exponentially as dimension increases, but there may not be enough data to cover the area densly (Need to densly cover the regions of the $n$-dimensional space, for the kNNs to work well)
+		\item Distance metrics on pixels are not informative (Distance metric may not capture the difference between images)
+		\item Curse of dimensionality - data points increase exponentially as dimension increases, but there may not be enough data to cover the area densely (Need to densely cover the regions of the $n$-dimensional space, for the kNNs to work well)
 	\end{itemize}
 \end{itemize}
 
@@ -86,7 +86,7 @@
 		\item A function $f : (x, W) \rightarrow$ numbers giving class scores for each class
 		\item If input $x$ is an $n\times 1$ vector and there were $c$ classes, $W$ must be $c\times n$ matrix
 	\end{itemize}
-	\item Classifier summarizes our knowlegde on the data and store it inside the parameter $W$
+	\item Classifier summarizes our knowledge on the data and store it inside the parameter $W$
 	\item At test time, we use the parameter $W$ to predict
 	\item How to come up with the right structure for $f$ ?
 	\item \textbf{Linear} Classifier : $f(x, W) = Wx$ $(+\, b)$

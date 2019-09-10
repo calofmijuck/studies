@@ -1,0 +1,88 @@
+\section{Loss Functions and Optimization}
+\subsection{Motivation}
+\begin{itemize}
+	\item We saw that $W$ can act as a template for each class
+	\item How do we choose such $W$ ?
+	\item To choose the best $W$, we should be able to \textbf{quantify} the goodness of prediction across the training data
+\end{itemize}
+
+\subsection{Loss Functions}
+\begin{itemize}
+	\item Dataset of examples: $\left\{(x_i, y_i)\right\}_{i=1}^N$, where $x_i$ is an input data, and $y_i \in \bb{Z}$ is a correct label for the data
+	\item Suppose we have a prediction function $f$, then the \textbf{loss over the dataset} is a sum of loss over examples
+	$$L = \frac{1}{N} \sum_{i} L_i\big(f(x_i, W), y_i\big)$$
+	\item Now we want to choose a $W$ that \textbf{minimizes the loss function}
+	\item \textbf{Multiclass SVM loss}
+	\begin{itemize}
+		\item Scores vector $s = f(x_i, W)$
+		\item SVM loss for each data (Hinge loss)
+		$$L_i = \sum_{j \neq y_i} \max\left(0, s_j - s_{y_i}+1\right)$$
+		\item As the score for the true category ($s_{y_i}$) increases, the loss goes down linearly, until it gets above a safety margin because now the example is correctly classified
+		\item Simply put - We are happy\footnote{We are happy when the loss is small} if \textit{the score for the correct label is much higher than all the other scores} by some margin\footnote{The constant 1 in the equation can actually be generalized}
+		\item Minimum loss is 0, maximum loss is $\infty$
+		\item Quadratic hinge loss - May be used to put more loss on scores that are totally off (Depends on how we want to weigh off different mistakes that the classifier makes)
+	\end{itemize}
+	\item Suppose we found a $W$ that makes $L = 0$. But this $W$ is not unique\footnote{$2W$ will also give 0 loss}, so how do we choose such $W$ ?
+	\item We have only written down loss \textbf{in terms of the data}. We only told the classifier to find the $W$ that fits the data
+	\item But in practice, we only care about the performance on the test data
+\end{itemize}
+
+\subsection{Regularization}
+\begin{itemize}
+	\item We add an additional \textbf{regularization} term to the loss function, which \textbf{encourages} the model to somehow pick a simpler $W$
+	\item We use a regularization penalty(loss) $R(W)$, then
+	$$L = \frac{1}{N} \sum_{i} L_i\big(f(x_i, W), y_i\big) + \lambda R(W)$$
+	and the $\lambda$ is a hyperparameter that trades off between data loss and regularization loss
+	\item Common regularization functions
+	\begin{itemize}
+		\item $L_2$ regularization
+		$$R(W) = \sum_{i}\sum_j W_{ij}^2$$
+		\item $L_1$ regularization
+		$$R(W) = \sum_i \sum_j \abs{W_{ij}}$$
+	\end{itemize}
+	\item Anything that you do to the model that \textit{penalizes the complexity of the model}
+	\item $L_1$ regularization thinks less non-zero entries are less complex, $L_2$ thinks spreading numbers all across entries of $W$ is less complex
+\end{itemize}
+
+\subsection{Softmax Loss}
+\begin{itemize}
+	\item Multinomial Logistic Regression
+	\item Multiclass SVM - no interpretation for each score
+	\item Consider the scores as \textit{unnormalized $\log$ probabilities of the classes}
+	\item $s = f(x_i, W)$
+	\begin{center}
+		$\ds \pr{Y=k \,|\, X = x_i} = \frac{e^{s_k}}{\sum_j e^{s_j}}$ \quad (softmax function)
+	\end{center}
+	\item Now we have a probability distribution, and we want this to match the distribution that put all it's weight on the correct label
+	\item Loss is the $-\log$ of the probability of the true class\footnote{You can view this as the KL divergence between the target and computed distribution, maximum likelihood estimate} (\textbf{Cross-Entropy})
+	$$L_i = -\log \left(\frac{e^{s_{y_i}}}{\sum_j e^{s_j}}\right)$$
+	\item Minimum loss is 0, maximum loss is $\infty$	
+\end{itemize}
+
+\subsection{Optimization}
+\begin{itemize}
+	\item Minimize the loss function!
+	\item Strategy \#1 : Random Search (...)
+	\item Strategy \#2 : \textbf{Follow the slope} - Use the geometry of the space to find \textit{which direction from here will decrease the loss function}
+	\item \textbf{Gradients} ! - Directional derivatives to find out which direction we should take a step, to minimize the loss function
+	\item Use calculus to compute analytic gradients and use them in code
+\end{itemize}
+
+\subsection{Gradient Descent}
+\begin{itemize}
+	\item The direction of the negative gradient is the fastest decrease
+	\item Key Idea: Starting from the initial guess $x_0$, iteratively compute $x_n$ by the following
+	$$x_{n+1} = x_n - \gamma \cdot \nabla F(x_n)$$
+	and hope to converge to some $x$
+	\item Constant $\gamma$ is the \textbf{step size}, sometimes called the \textbf{learning rate}, which is an important hyperparameter
+	\item This is \textbf{slow} ... Computing gradients for each iteration is too costly
+	\item \textbf{Stochastic Gradient Descent} uses a \textbf{minibatch} (subset of training data) to estimate the true gradient
+\end{itemize}
+
+\subsection{Image Features}
+\begin{itemize}
+	\item Feeding raw pixel values don't work well
+	\item Compute various \textbf{feature representations} of the image, concatenate them and feed it to the classifier
+	\item What is the best feature transform? \footnote{For instance, conversion from polar to Cartesian coordinates}
+	\item Example: Color Histogram, Histogram of Oriented Gradients (Local orientation of edges)
+\end{itemize}

@@ -5,6 +5,7 @@
 \usepackage{amssymb}
 \usepackage{mathtools}
 \usepackage{titlesec}
+\usepackage{chngcntr} 
 \usepackage[utf8]{inputenc}
 \usepackage{geometry}
 \geometry{
@@ -17,13 +18,16 @@
 \title{\textbf{CS231n}\\\large Convolutional Neural Networks for Visual Recognition}
 \author{Sungchan Yi}
 
+\counterwithin*{footnote}{section}
 % \pagenumbering{gobble}
 \renewcommand{\baselinestretch}{1.2}
 \renewcommand{\familydefault}{\sfdefault}
 
+\newcommand{\ds}{\displaystyle}
 \newcommand{\abs}[1]{\left|#1\right|}
 \newcommand{\mc}[1]{\mathcal{#1}}
-
+\newcommand{\bb}[1]{\mathbb{#1}}
+\newcommand{\pr}[1]{\mathrm{P}\left(#1\right)}
 
 \begin{document}
 \maketitle
