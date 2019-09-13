@@ -1,0 +1,40 @@
+\section{Introduction to Neural Networks}
+\subsection{Computational Graphs}
+\begin{itemize}
+	\item Graph to represent any function, where each node is a function (some operation)
+	\item Advantage - \textbf{Backpropagation}: Recursively using the chain rule in order to compute the gradient with respect to every variable in the computational graph
+\end{itemize}
+
+\subsection{Backpropagation}
+\begin{itemize}
+	\item Suppose we have a computational graph for loss function $L$, and we try to calculate the gradient at some node corresponding to the operation $f$
+	\item Suppose $f$ takes $x, y$ as inputs and outputs $z$, i.e. $z = f(x, y)$
+	\item We are given the gradient for $z$, namely $\dfrac{\partial L}{\partial z}$. With this we want to calculate $\dfrac{\partial L}{\partial x}$ and $\dfrac{\partial L}{\partial y}$
+	\item Use the \textbf{chain rule} to get
+	\begin{center}
+		$\dfrac{\partial L}{\partial x} = \dfrac{\partial L}{\partial z}\cdot \dfrac{\partial z}{\partial x}$ \quad and \quad $\dfrac{\partial L}{\partial y} = \dfrac{\partial L}{\partial z}\cdot \dfrac{\partial z}{\partial y}$
+	\end{center}
+	\item Usually operation $f$ is simple, so we can find the local gradients, $\dfrac{\partial z}{\partial x}$ and $ \dfrac{\partial z}{\partial y}$ \footnote{With this method, we won't have to derive an expression for the gradient for cases where the loss function is very complicated. We can just work on the level where gradients are easy to compute} \footnote{The expression for $\partial L/\partial z$ may be complex, but in practice, this value will be a single number received from upstream, which we multiply to the local gradient. The expressions for local gradients will be all we need, which will be very simple}
+	\item Now $\dfrac{\partial L}{\partial x}$ and $\dfrac{\partial L}{\partial y}$ will be used \textbf{recursively} for the nodes that produced $x$, $y$
+	\item \textbf{Sigmoid function}
+	\[ \sigma (x) = \frac{1}{1+e^{-x}} \]
+	Useful fact is that
+	\[ \frac{d \sigma(x)}{dx} = (1-\sigma(x))\cdot \sigma(x) \]
+	\item Patterns in backward flow
+	\begin{itemize}
+		\item Addition gate \textit{distributes} gradients
+		\item Max gate \textit{routes} gradients
+		\item Multiplication gate \textit{switches} gradients
+	\end{itemize} 
+	\item Note that multiple gradients coming in from upstream are added together
+	\item When $x, y, z$ become vectors, the gradients will be \textbf{Jacobian matrices}
+	\item But computational graphs will be very large, so it is impractical to write down each gradient formula by hand for all parameters 
+\end{itemize}
+
+\subsection{Neural Networks}
+\begin{itemize}
+	\item We talked about linear score function $f = Wx$
+	\item 2-layer neural network $f = W_2 \cdot \max(0, W_1x)$ ...
+	\item Stack multiple layers with non-linear function in between\footnote{Composition of linear functions will simplify to a linear function}
+	\item \textbf{Activation functions}
+\end{itemize}
