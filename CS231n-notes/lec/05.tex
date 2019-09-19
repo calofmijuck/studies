@@ -1,0 +1,76 @@
+\section{Convolutional Neural Networks}
+\subsection{History}
+\begin{itemize}
+	\item Mark I Perceptron (1957)
+	\item Adaline / Madaline (1960)
+	\item Backpropagation (1986)
+	\item Restricted Boltzmann Machines (2006)
+	\item Convolutional Neural Networks (2012)
+\end{itemize}
+
+\subsection{Structure}
+\begin{itemize}
+	\item Fully Connected Layer
+	\begin{itemize}
+		\item $32 \times 32\times 3$ image $\rightarrow 3072\times 1$ vector $x$
+		\item $10\times 3072$ weight matrix $W$
+		\item Calculate $Wx$ (Each score is the dot product of row of $W$ and $x$)
+	\end{itemize}
+	\item \textbf{Convolutional Layer}
+	\begin{itemize}
+		\item Keep the structure of the image as $32 \times 32\times 3$
+		\item Take a filter, ex. $5\times 5\times 3$ filter $w$
+		\item Slide over the image spatially, and compute dot products (\textbf{convolution}) $w\trans x + b$ \footnote{Consider the filter weights as stretched into a long vector}
+		\item Filters \textit{always} extend the full depth of the input volume
+		\item Result: $28 \times 28 \times 1$ \textbf{activation map}
+		\item Take \textbf{multiple filters} and create a set of activation maps, ex. $6$ filters will give a new image of activation maps with size $28 \times 28 \times 6$
+		\item ConvNet is a sequence of convolution layers, interspersed with activation functions
+		\item \textbf{Hierarching of filters} - filters at the earlier layers represent low level features (ex. edges)
+		\item At the mid-level, the filters look for more complex features like corners and blobs
+		\item When many filters are stacked, they learn types of simple to more complex features
+		\item Whole structure: Conv, Non-linear (ReLU ...), Conv, Non-linear, Pool layer (once in a while to downsample the size), Conv ... and a fully connected layer at the end to compute the scores for each class
+	\end{itemize}
+	\item Spatial Dimensions
+	\begin{itemize}
+		\item $N\times N$ image, $F\times F$ filter
+		\item With stride 1, results in $(N-F+1)\times (N-F+1)$ activation map
+		\item With stride $S$, size will be $(N-F)/S + 1$
+		\item If $S$ doesn't divide $N-F$, pad the input image with zeros
+		\item Common to see Conv layers with stride 1, filters of size $F\times F$ and zero-padding with $\frac{F-1}{2}$ (This will preserve size spatially)
+		\item Images convolved repeatedly with filters will shrink the image sizes, but shrinking too fast isn't good (won't work well - you lose information)		
+	\end{itemize}
+	\item Dimensions Summary - The Conv Layer
+	\begin{itemize}
+		\item Accepts a volume of size $W_1 \times H_1\times D_1$
+		\item With 4 hyperparameters
+		\begin{itemize}
+			\item $K$: Number of filters
+			\item $F$: size of filter
+			\item $S$: stride
+			\item $P$: amount of zero padding
+		\end{itemize}
+		\item Produces a volume of size $W_2\times H_2\times D_2$, where
+		$$W_2 = \frac{W_1-F+2P}{S} + 1 \qquad H_2 = \frac{H_1 - F+2P}{S}+1\qquad D_2 = K$$
+		\item With parameter sharing it produces $F^2D_1$ weights per filter, for a total of $F^2D_1K$ weights and $K$ biases
+	\end{itemize}
+	\item 1 number for a single convolution (dot product)
+	\item Activation map is a sheet of neuron outputs, each connected to a small region (receptive field) in the input, all of the sharing parameters (in the filter $w$)
+	\item With $k$ filters, Conv layer consists of neurons arranged in a 3D grid, and there will be $k$ different neurons all looking at the same region in the input volume
+	\item Note that the fully connected layer will look at the full input volume
+\end{itemize}
+
+\subsection{Pooling Layer}
+\begin{itemize}
+	\item Makes the representations smaller and more manageable (downsampling)
+	\item Accepts a volume of size $W_1 \times H_1\times D_1$
+	\item With 2 hyperparameters
+	\begin{itemize}
+		\item $F$: spatial extent
+		\item $S$: stride
+	\end{itemize}	
+	\item Produces a volume of size $W_2\times H_2\times D_2$ where
+	$$W_2 = \frac{W_1-F}{S} + 1\qquad H_2 = \frac{H_1-F}{S} + 1\qquad D_2=D_1$$
+	\item Doesn't do anything to the depth
+	\item Introduces zero parameters since it computes a \textbf{fixed function} of the input, ex. Max, Average
+	\item Uncommon to use zero-padding for pooling layers
+\end{itemize}
