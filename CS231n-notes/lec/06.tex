@@ -1,0 +1,100 @@
+\section{Training Neural Networks I}
+\subsection{Activation Functions}
+\begin{itemize}
+	\item \textbf{Sigmoid function}
+	\begin{itemize}
+		\item Form:$$\sigma(x) = \frac{1}{1 + e^{-x}}$$
+		\item Squashes numbers to range $[0, 1]$
+		\item Nice interpretation as a saturating firing rate of a neuron
+		\item Saturated neurons \textit{kill} the gradients - gradient is smaller as $x$ gets further from $0$
+		\item Sigmoid outputs are not zero-centered - if the input to a neuron is always positive, the gradients of the weights will be either all positive or all negative, resulting in increasing or decreasing all the weights. This is inefficient
+		\item $\exp(x)$ is computationally expensive
+	\end{itemize}
+	\item \textbf{Hyperbolic Tangent - $\tanh(x)$}
+	\begin{itemize}
+		\item Squashes numbers to range $[-1, 1]$
+		\item Zero centered
+		\item But kills gradients when saturated
+	\end{itemize}
+	\item \textbf{Rectified Linear Unit - ReLU}
+	\begin{itemize}
+		\item Form: $f(x) = \max\{0, x\}$
+		\item Does not saturated in the positive region
+		\item Computationally efficient
+		\item Converges much faster than $\sigma(x)$, $\tanh(x)$ in practice
+		\item More biologically plausible than $\sigma(x)$
+		\item Not zero-centered
+		\item Gradient is $0$ when $x < 0$ - $0$ gradient will never update the weights
+	\end{itemize}
+	\item \textbf{Leaky ReLU}
+	\begin{itemize}
+		\item Form: $f(x) = \max\{0.01x, x\}$
+		\item All benefits of ReLU
+		\item Gradient will not die!
+		\item Generalization - \textbf{Parametric Rectifier (PReLU)} where $f(x) = \max\{\alpha x, x\}$ \footnote{Backpropagate into $\alpha$ (parameter)}
+	\end{itemize}
+	\item \textbf{Exponential Linear Units - ELU}
+	\begin{itemize}
+		\item Form:
+		$$f(x) = \begin{cases}
+			x & \text{ if } x > 0\\ \alpha (e^x - 1) & \text{ if } x \leq 0
+		\end{cases}$$
+		\item All benefits of ReLU
+		\item Closer to zero mean outputs
+		\item Negative saturation regime compared with Leaky ReLU adds some robustness to noise
+		\item Computation requires $\exp(x)$
+	\end{itemize}
+	\item \textbf{Maxout Neuron}
+	\begin{itemize}
+		\item Form: $f(x) = \max\{w_1\trans x + b_1, w_2\trans x + b_2\}$
+		\item Does not have the basic form of dot product (non-linearity)
+		\item Generalizes ReLU and Leaky ReLU
+		\item Linear regime, does not saturate, does not die
+		\item But doubles the number of parameters per neuron
+	\end{itemize}
+\end{itemize}
+
+\subsection{Data Preprocessing}
+\begin{itemize}
+	\item Preprocess the data (zero centered - gradient problem, normalized, PCA, Whitening) 
+	\item Ex. subtract the mean image from all images, subtract per-channel (RGB) mean
+\end{itemize}
+
+\subsection{Weight Initialization}
+\begin{itemize}
+	\item Initializing as small random numbers sampled from Gaussian distribution $\mc{N}(0, 0.01^2)$
+	\item This works okay for small networks ... All activations become $0$, weights will get small gradients and will update slowly
+	\item What if sampled from $\mc{N}(0, 1^2)$ ... Almost all neurons are completely saturated, gradients will be all zero
+	\item Xavier Initialization - sample from the Gaussian distribution and scale it by the size of input ($1/\sqrt{n}$)
+\end{itemize}
+
+\subsection{Batch Normalization}
+\begin{itemize}
+	\item To get Gaussian activations!
+	\item Consider a batch of activations at some layer: To make each dimension unit Gaussian, apply
+	$$\widehat{x}^{(k)} = \frac{x^{(k)} - \ex{x^{(k)}}}{\sqrt{\var{x^{(k)}}}}$$
+	\item Compute the empirical mean and variance independently for each dimension and normalize
+	\item Can use $\beta^{(k)} = \ex{x^{(k)}}$, $\gamma^{(k)} = \sqrt{\var{x^{(k)}}}$ to recover the data, and use these as parameters to be learned (scale and shift)
+	\item Usually inserted after fully connected or convolutional layers and before non-linearity
+	\item Improves gradient flow through the network
+	\item Allows higher learning rates
+	\item Reduces the strong dependence on initialization
+	\item Acts as a form of regularization, slightly reduces the need for dropout (maybe)
+\end{itemize}
+
+\subsection{Babysitting the Learning Process}
+\begin{itemize}
+	\item Preprocess, then choose the architecture
+	\item Double check that the loss function is reasonable
+	\item Start off with small training data (make sure that you can overfit a small portion of the training data - sanity check)
+	\item Start with small regularization and find the learning rate that makes the loss go down
+\end{itemize}
+
+\subsection{Hyperparameter Optimization}
+\begin{itemize}
+	\item Cross-validation strategy
+	\item Coarse stage - only a few epochs to get a rough idea of what parameters work
+	\item Finer stage - longer running time for a finer search
+	\item Monitor and visualize the loss curve and the accuracy (overfitting)
+	\item Track the ratio of weight updates / weight magnitudes (want this to be somewhere around $0.001$)
+\end{itemize}
