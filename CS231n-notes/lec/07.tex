@@ -1,0 +1,95 @@
+\section{Training Neural Networks II}
+\subsection{Fancier Optimization}
+\begin{itemize}
+	\item Problems with Stochastic Gradient Descent
+	\begin{itemize}
+		\item High \textit{condition number} - ratio of largest to smallest singular value of the Hessian matrix
+		\item Loss function may have a local minima or a saddle point\footnote{Also, gradient is very small near the saddle point, which means that we will have slow progress}
+		\item The gradients come from minibatches, so they can be noisy
+	\end{itemize}
+	\item \textbf{Stochastic Gradient Descent}
+	$$x_{t+1} = x_t - \alpha \nabla f(x_t)$$
+	\item SGD + \textbf{Momentum}
+	$$\begin{aligned}
+		v_{t + 1} &= \rho v_t + \nabla f(x_t) \\ x_{t+1} &= x_t - \alpha v_{t+1}
+	\end{aligned}$$
+	where $v_t$ represents the `velocity'\footnote{Initial velocity can be set to $0$}\footnote{The velocity can be interpreted as the weighted sum of recent gradients, where the weights are exponentially decaying}, $\rho$ represents `friction'
+	\item Gradient may be small near the saddle points / local minima, but the velocity will not be $0$, letting us to keep moving and find the optimal parameter
+	\item \textbf{AdaGrad}
+	\begin{itemize}
+		\item Keep the squares of gradients
+		$$\begin{aligned}
+		g_{t} &= g_{t-1} + \left(\nabla f(x_t)\right)^2\\
+		x_{t + 1} &= x_t - \alpha\cdot \frac{\nabla f(x_t)}{\sqrt{g_t + \epsilon}}
+		\end{aligned}$$
+		\item Add element-wise scaling of the gradient based on the historical sum of squares in each dimension
+		\item Over long time, the squared sum of gradients get larger, so the step size gets smaller. This is a feature when the search space is convex (convergence)
+	\end{itemize}
+	\item \textbf{RMSProp}
+	\begin{itemize}
+		\item Weights on the squared sum of gradients
+		$$\begin{aligned}
+		g_{t} &= \gamma g_{t-1} + (1-\gamma) \left(\nabla f(x_t)\right)^2\\
+		x_{t + 1} &= x_t - \alpha\cdot \frac{\nabla f(x_t)}{\sqrt{g_t + \epsilon}}
+		\end{aligned}$$
+		\item Momentum on the squared gradients
+	\end{itemize}
+	\item \textbf{Adam} (Adaptive Moment Estimation)
+	\begin{itemize}
+		\item $\approx$ RMSProp + Momentum
+		$$\begin{aligned}
+		m_t &= \beta_1 m_{t-1} + (1-\beta_1) \nabla f(x_t)\\
+		v_t &= \beta_2 v_{t-1} + (1-\beta_2) \left(\nabla f(x_t)\right)^2
+		\end{aligned}$$
+		\item But since we initialize $v_0$, $m_0$ as $0$, we consider them as \textit{biased}, so we add a bias correction term to avoid the problem of taking very large steps at the beginning of training
+		$$
+			\widetilde{m_t} = \frac{m_t}{1-\beta_1^t} \qquad \widetilde{v_t} = \frac{v_t}{1-\beta_2^t}
+		$$
+		\item Now we have
+		$$x_{t+1} = x_t - \alpha \cdot \frac{\widetilde{m_t}}{\sqrt{\widetilde{v_t} + \epsilon}}$$
+	\end{itemize}
+	\item All these take the \textbf{learning rate} ($\alpha$) as a hyperparameter
+	\item Learning rate may decay over time
+	\item These algorithms are \textbf{first-order optimazation} algorithms
+	\item \textbf{Second-Order Optimization}
+	\begin{itemize}
+		\item Use gradient and Hessian to form quadratic approximation, and step to the minima of the approximation
+		\item Taylor expansion
+		$$J(\theta) \approx J(\theta_0) + (\theta - \theta_0)\trans \cdot \nabla J(\theta_0) + \frac{1}{2}(\theta - \theta_0)\trans \mathbf{H} (\theta - \theta_0)$$
+		\item Newton parameter update
+		$$\theta^\ast = \theta_0 - \mathbf{H}^{-1} \nabla J(\theta_0)$$
+		\item No learning rate, no hyperparameters
+		\item Hessian has $\mc{O}(n^2)$ elements, inverting takes $\mc{O}(n^3)$ ... Too slow for deep learning
+	\end{itemize}
+	\item \textbf{Model Ensembles}
+	\begin{itemize}
+		\item Optimization was about minimizing the objective function and reducing the training loss
+		\item But we want to increase the accuracy of the model, i.e. reduce the gap between the train and test error
+		\item Train many independent models, and average their results at test time\footnote{May reduce overfitting}
+	\end{itemize}
+\end{itemize}
+
+\subsection{Regularization}
+\begin{itemize}
+	\item Prevent our model from fitting the training data too well!
+	\item \textbf{Dropout}
+	\begin{itemize}
+		\item In each forward pass, \textbf{randomly} set some neurons' activation to zero
+		\item Dropout probability is also a hyperparameter
+		\item (Hand Waving) Prevents co-adaptation of features, forces the network to have a redundant representation
+		\item Dropout is training a large ensemble of model within a single model (each binary mask) is one model
+		\item At test time, multiply the output by the dropout probability
+	\end{itemize}
+	\item Common pattern
+	\begin{itemize}
+		\item \textbf{Training}: Add some kind of randomness $y = f_W(x, z)$
+		\item \textbf{Testing}: Average out randomness (sometimes approximate) $$y = f(x) = \mathrm{E}_z\left[f(x, z)\right] = \int p(z)f(x, z)dz$$
+	\end{itemize}
+	\item \textbf{Data Augmentation} - filp images, color jitter, random crops and scales, and more random transformation
+\end{itemize}
+
+\subsection{Transfer Learning}
+\begin{itemize}
+	\item Train the model on a huge dataset, and freeze its weights
+	\item Add/remove custom layers that you want to classify and train only for this layer (\textbf{fine tuning})
+\end{itemize}
