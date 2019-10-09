@@ -1,0 +1,53 @@
+\section{Recurrent Neural Networks}
+\subsection{Recurrent Neural Networks}
+\begin{itemize}
+	\item We might need many-to-many inputs/outputs for our model (variable length processing)
+	\item RNN reads input $x$ and predicts a vector $y$ at some time step
+	\item \textbf{Recurrence Formula}
+	$$h_t = f_W(h_{t-1}, x_t)$$
+	where $h_t$ is the state at time $t$, $x_t$ is the input vector at time $t$, and $f_W$ is some function with parameters $W$
+	\item Notice that the same function and the same set of parameters are used at every time step, thus the name \textit{recurrent}
+	\item Example
+	$$h_t = \tanh(W_{hh}h_{t-1} + W_{xh}x_t) \qquad y_t = W_{hy}h_t$$
+	With the output $h_t$, calculate $y_t$ using weights $W_{hy}$ to compute the prediction vector $y_t$
+	\item \textbf{Truncated Backpropagation} through time - Run forward and backward through chunks of the sequence instead of the whole sequence
+	\item Image Captioning: CNN+RNN (+ Attention: which part of the image to look at, for every time step)
+	\item Backpropagation on RNN: we need to multiply by some part of the weight matrix, \textit{multiple times}, which may cause gradients to either explode or vanish (gradient clipping - scale gradient if its $L_2$ norm is too big, or change RNN architecture)
+\end{itemize}
+
+\subsection{Long Short Term Memory (LSTM)}
+\begin{itemize}
+	\item $h_t$: hidden state, $c_t$: cell state
+	$$
+		\begin{pmatrix}
+		 i \\ f \\ o \\ g
+		\end{pmatrix} =
+		\begin{pmatrix}
+			\sigma \\ \sigma \\ \sigma \\ \tanh
+		\end{pmatrix}
+		W \begin{pmatrix}
+		h_{t-1} \\x_t
+		\end{pmatrix}
+	$$
+	$$c_t = f\odot c_{t-1} + i\odot g \qquad h_t = o\odot \tanh(c_t)$$
+	\begin{itemize}
+		\item $f$: Forget gate, whether to erase cell
+		\item $i$: Input gate, whether to write to cell
+		\item $g$: Gate gate, how much to write to cell
+		\item $o$: Output gate, how much to reveal cell
+	\end{itemize}
+	\item Forget a portion of previous cell state $c_{t-1}$, and determine whether to write $g$ to the cell state, and squash the cell state using $\tanh$, multiply the output to decide how much we want to reveal the cell
+	\item Backpropagation: Element-wise multiplication by the forget gate (uninterrupted gradient flow)
+	\item \textbf{Gated Recurrent Units} (GRU)
+	$$
+	\begin{aligned}
+	r_t &= \sigma(W_{xr}x_t + W_{hr}h_{t-1} + b_r) \\
+	z_t &= \sigma(W_{xz}x_t + W_{hz}h_{t-1} + b_z) \\
+	\widetilde{h_t} &= \tanh(W_{xh}x_t + W_{hh}(r_t\odot h_{t-1}) + b_h)\\
+	h_t &= z_t \odot h_{t-1} + (1-z_t) \odot \widetilde{h_t}
+	\end{aligned}	
+	$$
+\end{itemize}
+
+
+
