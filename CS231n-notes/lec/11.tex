@@ -1,0 +1,63 @@
+\section{Detection and Segmentation}
+\subsection{Semantic Segmentation}
+\begin{itemize}
+	\item For every pixel in the image, assign a category (label the pixel as grass, cat, etc.)
+	\item \textit{Sliding Window} approach: break image down to a small crop and categorize it (computationally expensive)
+	\item \textbf{Fully Convolutional} approach: bunch of convolutional layers - after forward pass, scores for categories are calculated for each pixel
+	\item This is also expensive - convolutions at the original image resolution will be very expensive
+	\item Better approach: design the network as a bunch of convolutional layers, with \textbf{downsampling} and \textbf{upsampling} inside the network
+	\item Downsampling the input image enables us to make the network deep and deal with smaller sizes in the hidden layers. In the last few layers, upsample the image to restore it to the original size
+	\item \textit{Downsampling} can be done by pooling, strided convolution
+	\item \textit{Upsampling} - how to fill an area of pixels with the given weight value
+	\begin{itemize}
+		\item Nearest Neighbor - fill the pixels with the same value
+		\item Bed of Nails - set a single pixel to the value, rest are 0
+		\item Max unpooling - remember the position of the maximum element and set the value at that position when upsampling (Will need corresponding pairs of downsampling and upsampling layers)
+		\item Transpose convolution\footnote{Also called deconvolution, upconvolution, fractionally strided convolution, backward strided convolution} - we have a filter, we multiply the given weight value to the filter and fill the output pixel region with the result. If the regions overlap, just add them
+	\end{itemize}
+\end{itemize}
+
+\subsection{Classification + Localization}
+\begin{itemize}
+	\item Want to label the image as some object, and want to determine where the object is (find the boundary of that object)
+	\item Input an image $\rightarrow$ class scores, and box coordinates. Calculate softmax loss with class scores, and calculate $L_2$ loss with coordinates. Add two losses to get a \textbf{multitask loss}
+	\item Human pose estimation
+\end{itemize}
+
+\subsection{Object Detection}
+\begin{itemize}
+	\item Start with some fixed categories
+	\item Given an input image, when an categorized object appears in the image, we want to detect it
+	\item Challenging since we don't know how many number of object we expect to see in one image
+	\item \textit{Sliding Window} approach - similar to semantic segmentation, but also expensive
+	\item \textbf{Region Proposals} - Given an input images, gives boxes where objects might be present. Relatively fast to run - Selective Search gives 2000 regions
+	\item \textbf{R-CNN}
+	\begin{itemize}
+		\item Regions of Interest (RoI) from region proposals
+		\item Warped image regions are forwarded through ConvNet
+		\item Classify regions with SVMs and linear regression for bounding box offsets
+		\item Computationally expensive
+		\item Training is slow, takes lot of disk space
+		\item Inference is slow
+	\end{itemize}
+	\item \textbf{Fast R-CNN}
+	\begin{itemize}
+		\item Forward the entire image through the ConvNet
+		\item Use Conv feature map of image to find RoIs from a proposal method
+		\item Use RoI pooling layer and use FC layer
+		\item Use softmax classifier and bounding-box regressors
+		\item Computing region proposals dominates the computation time
+	\end{itemize}
+	\item \textbf{Faster R-CNN}
+	\begin{itemize}
+		\item Network itself predicts the region proposals
+	\end{itemize}
+	\item \textbf{Detection without Proposals}: YOLO / SSD
+\end{itemize}
+
+\subsection{Instance Segmentation}
+\begin{itemize}
+	\item Object Detection + Semantic Segmentation
+	\item Detect objects and predict the boundaries
+	\item \textbf{Mask R-CNN}
+\end{itemize}
