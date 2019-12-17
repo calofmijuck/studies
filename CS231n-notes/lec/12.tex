@@ -1,0 +1,39 @@
+\section{Visualizing and Understanding}
+\textit{What's going on inside CNNs? We want to gain intuition for each layers!}
+\begin{itemize}
+	\item Visualizing the weights learned by the layer - template matching and inner products gives us the idea of what the layer is looking for in the image
+	\item First layer: looking for orientation, opposing colors, angles and edges
+	\item Higher layers: able to visualize, but not very interesting (not very good intuition...)
+	\item Last layer: feature vector for an image (before the classifier)
+	\item Last layer: nearest neighbours in the feature space - the feature space captures the semantic content in the image
+	\item Last layer: \textbf{dimensionality reduction} - ex. principle component analysis, \textbf{t-SNE}. Can visualize the geometry of the feature space
+	\item Visualizing maximally activating patches - show the image patches that correspond to maximal activations
+	\item Occlusion experiments - mask part of the image and draw a heatmap of probability at each mask location, if the probability changed a lot, that masked region of the image was important for classification
+	\item Saliency maps - compute the gradient of (unnormalized) class score with respect to image pixels
+	\item Intermediate features via guided backpropagation - which part of the image influence the score in a specific neuron
+	\item Gradient ascent - fix the weights and change the pixels in the image to maximize the activation of a neuron (also use regularization term to prevent overfitting)
+	\begin{itemize}
+		\item Initialize the image
+		\item Forward image to compute current scores
+		\item Backprop to get gradient of neuron value with respect to image pixels
+		\item Make a small update to the image
+		\item Multi-modality (???)
+	\end{itemize}
+	\item Fooling images - image has no difference to the human eye, but adding slightly different noises to the image may cause the network to classify the image differently
+	\begin{itemize}
+		\item Start from an arbitrary image
+		\item Pick an arbitrary class
+		\item Modify the image to maximize the class
+		\item Repeat until the network is fooled
+	\end{itemize}
+	\item \textit{Why is this visualization important?} - Response to criticism: To show that these complex models are doing something beneath, to get a nice interpretation for each layer and gain understanding (they aren't random!)
+	\item DeepDream - amplify existing features
+	\item Feature inversion - try to reconstruct image from the feature vector (with gradient ascent and regularization: total variation regularizer encourages spatial smoothness for the image to look more natural)
+	\begin{itemize}
+		\item As we go deeper in the layer, the networks throws away the low level details, instead the network tries to keep around the semantic information (a little bit more invariant to small changes in color and texture)
+	\end{itemize}
+	\item Texture synthesis - given input patch, generate a larger image with the same texture
+	\item Neural texture synthesis - Gram matrix
+	\item Neural style transfer - feature inversion + Gram reconstruction
+	\item Fast neural style	
+\end{itemize}
