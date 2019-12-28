@@ -1,0 +1,162 @@
+\section{Deep Reinforcement Learning}
+Problems involving and \textbf{agent} interacting with an \textbf{environment}, which provides \textbf{numeric award} signals. Goal is to learn how to take actions in order to maximize reward
+
+\subsection{Reinforcement Learning}
+\begin{itemize}
+	\item Setup
+	\begin{itemize}
+		\item Environment gives Agent some state $s_t$
+		\item Agent takes action $a_t$
+		\item Environment gives back reward $r_t$, and next state $s_{t+1}$
+	\end{itemize}
+	
+\end{itemize}
+
+\subsection{Markov Decision Process}
+\begin{itemize}
+	\item Mathematical formulation of the RL problem
+	\item \textbf{Markov property}: Current state completely characterizes the state of the world
+	\item Defined by $(\mc{S}, \mc{A}, \mc{R}, \bb{P}, \gamma)$
+	\begin{itemize}
+		\item $\mc{S}$: set of possible states
+		\item $\mc{A}$: set of possible actions
+		\item $ \mc{R} $: distribution of reward given (state, action) pair
+		\item $ \bb{P} $: transition probability given (state, action) pair
+		\item $ \gamma $: discount factor (how much we value rewards coming up soon or later on)
+	\end{itemize}
+	\item Process
+	\begin{itemize}
+		\item At $t=0$, environment samples initial state $s_0 \sim p(s_0)$
+		\item Repeat until Done:
+		\begin{itemize}
+			\item Agent selects action $a_t$
+			\item Environment samples reward $r_t \sim R(\cdot \mid s_t, a_t)$
+			\item Environment samples next state $s_{t+1}\sim P(\cdot \mid s_t, a_t)$
+			\item Agent receives reward $r_t$ and next state $s_{t+1}$
+		\end{itemize}
+		\item A policy $\pi$ is a function from $\mc{S}$ to $\mc{A}$ that specifies what action to take in each state
+	\end{itemize}
+	\item \textbf{Objective}: Find policy $\pi^\ast$ that maximizes cumulative discounted reward - $\ds \sum_{t\geq 0} \gamma^t r_t$
+	\begin{itemize}
+		\item How do we handle the randomness (initial state, transition probability ...)
+		\item Maximize the \textbf{expected sum of rewards}
+	\end{itemize}
+	$$\pi^\ast = \arg\max_\pi \ex{\sum_{t\geq 0} \gamma^t r_t\mid \pi} \text{ w.r.t } s_0\sim p(s_0), a_t\sim \pi(\cdot \mid s_t), s_{t+1}\sim p(\cdot \mid s_t, a_t)$$
+\end{itemize}
+
+\subsection{Value Function and $Q$-Value Function}
+\begin{itemize}
+	\item Following a policy produces sample trajectories $s_0, a_0, r_0, s_1, a_1, r_1, \dots$
+	\item The \textbf{value function} at state $s$ is the expected cumulative reward from following the policy from state $s$ (Measures how good a state is)
+	$$V^\pi (s) = \ex{\sum_{t\geq 0} \gamma^t r_t\mid s_0 = s, \pi}$$
+	\item The \textbf{$Q$-value function} at state $s$ and action $a$ is the expected cumulative reward from taking action $a$ in state $s$ and then following the policy (Measures how good a state-action pair is)
+	$$Q^\pi (s, a) = \ex{\sum_{t\geq 0} \gamma^tr_t\mid s_0=s, a_0=a, \pi}$$
+	\item The optimal $Q$-value function $Q^\ast$ is the maximum expected cumulative reward achievable from a given (state, action) pair
+	$$Q^\ast (s, a) = \max_{\pi}\ex{\sum_{t\geq 0} \gamma^tr_t\mid s_0=s, a_0=a, \pi}$$
+	\item $Q^\ast$ satisfies the following \textbf{Bellman Equation}
+	$$Q^\ast (s, a) = \bb{E}_{s'\sim \mc{E}}\left[r + \gamma \max_{a'} Q^\ast (s', a') \mid s, a\right]$$
+	Intuition: If the optimal state-action values for the next time-step $Q^\ast (s', a')$ are known, then the optimal strategy is to take the action that maximizes the expected value of $r+\gamma Q^\ast (s', a')$
+	\item The optimal policy $\pi^\ast$ corresponds to taking the best action in any state as specified by $Q^\ast$
+\end{itemize}
+
+\subsection{Solving for the Optimal Policy: $Q$-Learning}
+\begin{itemize}
+	\item \textbf{Value iteration} algorithm: Use the Bellman equation as an iterative update
+	$$Q_{i+1} (s, a) = \bb{E}\left[r + \gamma \max_{a'} Q_i (s', a') \mid s, a\right]$$
+	$Q_i$ will converge to $Q^\ast$ as $i \rightarrow \infty$
+	\item Problem: not scalable. Must compute $Q(s, a)$ for every state-action pair. If state is pixels, it is computationally infeasible to compute this for the entire state space
+	\item Solution: Use a function approximator to estimate $Q(s, a)$
+	\item $Q$-learning: Use a function approximator to estimate the action-value function\footnote{$\theta$ is the function parameters (weights)}
+	$$Q(s, a; \theta) \approx Q^\ast (s, a)$$
+	Deep $Q$-learning: If the function approximator is a deep neural network
+	\item Want to find a $Q$-function that satisfies the Bellman equation. Thus loss function will measure the error from the Bellman equation
+	\item \textbf{Forward Pass} - Loss function $L_i(\theta_i)$
+	$$L_i(\theta_i) = \bb{E}_{s, a\sim \rho(\cdot)}\left[(y_i - Q(s, a;\theta_i))^2\right] \quad \text{where } y_i = \bb{E}_{s'\sim \mc{E}}\left[r + \gamma \max_{a'} Q(s', a';\theta_{i-1}) \mid s, a\right]$$
+	\item \textbf{Backward Pass} - Gradient update (w.r.t $Q$-function parameters $\theta$)
+	$$\nabla_{\theta_i} L_i(\theta_i) = \bb{E}_{s, a\sim \rho(\cdot);s'\sim \mc{E}}\left[r + \gamma \max_{a'} Q(s', a';\theta_{i-1}) - Q(s, a;\theta_i)\nabla_{\theta_i}Q(s, a;\theta_i)\right]$$
+	\item Iteratively try to make the $Q$-value close to the target value $y_i$ it should have, if $Q$-function corresponds to optimal $Q^\ast$ (and optimal policy $\pi^\ast$)
+	\item Learning from batches of consecutive samples is problematic
+	\begin{itemize}
+		\item Samples are correlated
+		\item Current $Q$-network parameters determine next training samples, which can lead to bad feedback loops
+	\end{itemize}
+	\item \textbf{Experience Replay}
+	\begin{itemize}
+		\item Continually update a \textbf{replay memory} table of transitions $(s_t, a_t, r_t, s_{t+1})$ as game (experience) episodes are played
+		\item Train $Q$-network on random minibatches of transitions from the replay memory, instead of consecutive samples
+		\item Each transition can also contribute to multiple weight updates (greater data efficiency)
+	\end{itemize}
+	\item Deep $Q$-Learning with Experience Replay
+	\begin{itemize}
+		\item Initialize replay memory, $Q$-network
+		\item Play $M$ episodes (full games)
+		\item Initialize state (starting game screen pixels) at the beginning of each episode
+		\item For each timestep $t$ of the game
+		\begin{itemize}
+			\item With small probability, select a random action (explore), otherwise select greedy action from current policy
+			\item Take the action $a_t$ and observe the reward $r_t$ and next state $s_{t+1}$
+			\item Store transition in replay memory
+			\item Experience Replay: Sample a random minibatch of transitions from replay memory and perform a gradient descent step
+		\end{itemize}
+	\end{itemize}
+\end{itemize}
+
+\subsection{Policy Gradients}
+\begin{itemize}
+	\item Problem with $Q$-learning: $Q$-function can be very complicated
+	\item Can we learn a policy directly?
+	\item Define a class of parametrized policies $\Pi = \{\pi_\theta, \theta \in \bb{R}^m \}$
+	\item For each policy, define its value $\ds J(\theta) = \ex{\sum_{t\geq 0} \gamma^tr_t\mid \pi_\theta}$
+	\item We want to find the optimal policy $\theta^\ast = \ds \arg\max_\theta J(\theta)$
+	\item Apply gradient ascent on policy parameters
+\end{itemize}
+
+\subsection{Reinforce Algorithm}
+\begin{itemize}
+	\item Expected reward: $J(\theta) = \ds\int_\tau r(\tau)p(\tau; \theta) \, d\tau$, where $r(\tau)$ is the reward of a trajectory $\tau$
+	\item $\nabla_\theta J(\theta) = \ds\int_\tau r(\tau)\nabla_\theta p(\tau; \theta) \, d\tau$ (Intractable; Gradient of an expectation is problematic when $p$ depends on $\theta$)
+	\item Trick: $\nabla_\theta p(\tau; \theta) = p(\tau;\theta)\ds \frac{\nabla_\theta p(\tau; \theta)}{p(\tau;\theta)} = p(\tau;\theta) \nabla_\theta \log p(\tau;\theta)$
+	\item Then $\nabla_\theta J(\theta) = \ds\int_\tau (r(\tau)\nabla_\theta \log p(\tau;\theta)) p(\tau;\theta)\,d\tau = \bb{E}_{\tau\sim p(\tau;\theta)}\left[r(\tau)\nabla_\theta \log p(\tau;\theta)\right]$
+	\item This can be estimated with Monte Carlo sampling
+	\item Can we compute those quantities without knowing the transition probabilities?
+	\item $p(\tau;\theta) = \ds\prod_{t\geq 0} p(s_{t+1}\mid s_t, a_t) \pi_{\theta}(a_t\mid s_t)$
+	\item $\log p(\tau;\theta) = \ds\sum_{t\geq 0} \left(\log p(s_{t+1}\mid s_t, a_t) + \log \pi_{\theta}(a_t\mid s_t)\right)$ \item Differentiation gives $\nabla_\theta \log p(\tau;\theta) = \sum_{t\geq 0} \nabla_\theta \log \pi_{\theta}(a_t\mid s_t)$ (Does not depend on transition probabilities)
+	\item Therefore when sampling a trajectory $\tau$, we estimate $J(\theta)$ with
+	$$\nabla_\theta J(\theta) \approx \sum_{t\geq 0} r(\tau)\nabla_\theta \log \pi_{\theta}(a_t\mid s_t)$$
+	\item Interpretation
+	\begin{itemize}
+		\item If $r(\tau)$ is high, push up the probabilities of the actions seen
+		\item If $r(\tau)$ is low, push down the probabilities of the actions seen
+	\end{itemize}
+	\item This gradient estimator $\nabla_\theta J(\theta)$ sufferes from high variance because credit assignment is really hard
+	\item Variance Reduction
+	\begin{itemize}
+		\item Push up the probabilities of an action seen, only by the cumulative future reward from that state
+		$$\nabla_\theta J(\theta) \approx \sum_{t\geq 0}\left(\sum_{t'\geq t} r_{t'}\right) \nabla_\theta \log \pi_{\theta}(a_t\mid s_t)$$
+		\item Use discount factor $\gamma$ to ignore delayed effects
+		$$\nabla_\theta J(\theta) \approx \sum_{t\geq 0}\left(\sum_{t'\geq t} \gamma^{t'-t} r_{t'}\right) \nabla_\theta \log \pi_{\theta}(a_t\mid s_t)$$
+	\end{itemize}
+	\item Variance Reduction: \textit{Baseline}
+	\begin{itemize}
+		\item Important: Whether a reward is better or worse than what you expect to get 
+		\item Idea: Introduce a baseline function dependent on the state $s_t$
+		$$\nabla_\theta J(\theta) \approx \sum_{t\geq 0}\left(\sum_{t'\geq t} \gamma^{t'-t} r_{t'} - b(s_t)\right) \nabla_\theta \log \pi_{\theta}(a_t\mid s_t)$$
+	\end{itemize}
+	\item Baseline Function
+	\begin{itemize}
+		\item Simple: Constant moving average of rewards experienced so far from all trajectories
+		\item Better: Push up the probability of an action from a state, if this action was better than the \textbf{expected value} of what we should get from that state
+		\item We are happy with an action $a_t$ in a state $s_t$ if $Q^\pi (s_t, a_t)-V^\pi (s_t)$ is large
+		\item Now we have
+		$$\nabla_\theta J(\theta) \approx \sum_{t\geq 0}\left( Q^{\pi_\theta} (s_t, a_t) - V^{\pi_\theta}(s_t)\right) \nabla_\theta \log \pi_{\theta}(a_t\mid s_t)$$
+	\end{itemize}
+	\item \textbf{Actor-Critic} Algorithm
+	\begin{itemize}
+		\item But we don't know $Q, V$, can we learn them?
+		\item Combine policy gradients and $Q$-learning by training both an actor (the policy) and a critic (the $Q$-function)
+		\item The actor decides with action to take, and the critic tells the actor how good its action was and how it should adjust
+		\item Also alleviates the task of the critic as it only has to learn the values of (state, action) pairs generated by the policy
+		\item Can also incorporate $Q$-learning tricks
+		\item \textbf{Advantage function}: how much an action was better than expected $$A^\pi (s, a) = Q^\pi (s, a) - V^\pi(s)$$
+	\end{itemize}
+\end{itemize}

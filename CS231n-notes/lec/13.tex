@@ -123,21 +123,21 @@
 	\item Encoder and decoder networks are also called recognition/inference and generation networks
 	\item Data likelihood
 	$$\begin{aligned}
-		\log p_\theta\left(x^{(i)}\right) &= \mathrm{E}_{z\sim q_\phi(z\mid x^{(i)})}\left[\log p_\theta \left(x^{(i)}\right)\right] \qquad \left(p_\theta\left(x^{(i)}\right) \text{does not depend on } z\right)\\
-		&= \mathrm{E}_{z} \left[\log\frac{p_\theta(x^{(i)} \mid z) p_\theta(z)}{p_\theta(z\mid x^{(i)})}\right] \qquad \left(\text{Bayes' Rule} ???\right)\\
-		&= \mathrm{E}_{z}\left[\log p_\theta(x^{(i)} \mid z)\right] - \mathrm{E}_{z}\left[\log\frac{q_\phi\left(z\mid x^{(i)}\right)}{p_\theta(z)}\right] + \mathrm{E}_{z}\left[\log\frac{q_\phi\left(z\mid x^{(i)}\right)}{p_\theta\left(z\mid x^{(i)}\right)}\right] \\
-		&=\mathrm{E}_{z}\left[\log p_\theta(x^{(i)} \mid z)\right] \\&\qquad - D_{KL}\left(q_\phi\left(z\mid x^{(i)}\right) \parallel p_\theta(z) \right) + D_{KL}\left(q_\phi\left(z\mid x^{(i)}\right) \parallel p_\theta\left(z\mid x^{(i)}\right)\right)\\
+		\log p_\theta\left(x^{(i)}\right) &= \mathbb{E}_{z\sim q_\phi(z\mid x^{(i)})}\left[\log p_\theta \left(x^{(i)}\right)\right] \qquad \left(p_\theta\left(x^{(i)}\right) \text{does not depend on } z\right)\\
+	&= \mathbb{E}_{z} \left[\log\frac{p_\theta(x^{(i)} \mid z) p_\theta(z)}{p_\theta(z\mid x^{(i)})}\right] \qquad \left(\text{Bayes' Rule} ???\right)\\
+	&= \mathbb{E}_{z}\left[\log p_\theta(x^{(i)} \mid z)\right] - \mathbb{E}_{z}\left[\log\frac{q_\phi\left(z\mid x^{(i)}\right)}{p_\theta(z)}\right] + \mathbb{E}_{z}\left[\log\frac{q_\phi\left(z\mid x^{(i)}\right)}{p_\theta\left(z\mid x^{(i)}\right)}\right] \\
+	&=\mathbb{E}_{z}\left[\log p_\theta(x^{(i)} \mid z)\right] \\&\qquad - D_{KL}\left(q_\phi\left(z\mid x^{(i)}\right) \parallel p_\theta(z) \right) + D_{KL}\left(q_\phi\left(z\mid x^{(i)}\right) \parallel p_\theta\left(z\mid x^{(i)}\right)\right)\\
 	\end{aligned}$$
 	\begin{itemize}
-		\item $\mathrm{E}_{z}\left[\log p_\theta(x^{(i)} \mid z)\right]$: Decoder network gives $p_\theta(x\mid z)$, can compute estimate of this term through sampling
+		\item $\mathbb{E}_{z}\left[\log p_\theta(x^{(i)} \mid z)\right]$: Decoder network gives $p_\theta(x\mid z)$, can compute estimate of this term through sampling
 		\item $- D_{KL}\left(q_\phi\left(z\mid x^{(i)}\right) \parallel p_\theta(z) \right)$: This KL term (between Gaussians for encoder and $z$ prior) has nice closed-form solution
 		\item $D_{KL}\left(q_\phi\left(z\mid x^{(i)}\right) \parallel p_\theta\left(z\mid x^{(i)}\right)\right)$: $p_\theta(z\mid x)$ is intractable, can't compute, but we know that KL divergence term is always $\geq 0$
 		\item Since last term is always $\geq 0$...
 	\end{itemize}
 	\item \textbf{Tractable Lower Bound} which we can take gradient of and optimize (differentiable)
-	$$\mc{L}\left(x^{(i)}, \theta, \phi \right) =\mathrm{E}_{z}\left[\log p_\theta(x^{(i)} \mid z)\right] - D_{KL}\left(q_\phi\left(z\mid x^{(i)}\right) \parallel p_\theta(z) \right) $$
+	$$\mc{L}\left(x^{(i)}, \theta, \phi \right) =\mathbb{E}_{z}\left[\log p_\theta(x^{(i)} \mid z)\right] - D_{KL}\left(q_\phi\left(z\mid x^{(i)}\right) \parallel p_\theta(z) \right) $$
 	\begin{itemize}
-		\item $\mathrm{E}_{z}\left[\log p_\theta(x^{(i)} \mid z)\right]$: Trying to do a good reconstruction of input data
+		\item $\mathbb{E}_{z}\left[\log p_\theta(x^{(i)} \mid z)\right]$: Trying to do a good reconstruction of input data
 		\item $D_{KL}\left(q_\phi\left(z\mid x^{(i)}\right) \parallel p_\theta(z) \right)$: Want this KL term to be small, which means that we want top make approximate posterior distribution close to the prior distribution 
 	\end{itemize}
 	\item $\therefore \log p_\theta\left(x^{(i)}\right) \geq \mc{L}\left(x^{(i)}, \theta, \phi \right)$ (Variational lower bound - ELBO\footnote{Evidence Lower Bound})
@@ -189,15 +189,15 @@
 		\item Train jointly in \textbf{minimax game}
 	\end{itemize}
 	\item Objective function:
-	$$\min_{\theta_g} \max_{\theta_d}\left( \mathrm{E}_{x\sim p_{data}}\left[\log D_{\theta_d}(x)\right] + \mathrm{E}_{z\sim p(z)} \left[\log(1-D_{\theta_d}(G_{\theta_g}(z)))\right]\right)$$
+	$$\min_{\theta_g} \max_{\theta_d}\left( \mathbb{E}_{x\sim p_{data}}\left[\log D_{\theta_d}(x)\right] + \mathbb{E}_{z\sim p(z)} \left[\log(1-D_{\theta_d}(G_{\theta_g}(z)))\right]\right)$$
 	\begin{itemize}
 		\item Discriminator ($\theta_d$) wants to \textbf{maximize objective} such that $D(x)$ is close to 1 (real image) and $D(G(z))$ is close to 0 (fake image)
 		\item Generator ($\theta_g$) wants to \textbf{minimize objective} such that $D(G(z))$ is close to 1 (discriminator is fooled into thinking generated $G(z)$ is real)
 	\end{itemize}
 	\item Alternate between:
 	\begin{itemize}
-		\item \textbf{Gradient ascent} on discriminator $$\max_{\theta_d}\left( \mathrm{E}_{x\sim p_{data}}\left[\log D_{\theta_d}(x)\right] + \mathrm{E}_{z\sim p(z)} \left[\log(1-D_{\theta_d}(G_{\theta_g}(z)))\right]\right)$$
-		\item \textbf{Gradient ascent} on generator\footnote{$\log(1-x)$ doesn't work well with gradient descent - low gradient on bad samples, high gradient on good samples} $$\max_{\theta_g} \left(\mathrm{E}_{z\sim p(z)} \left[\log(D_{\theta_d}(G_{\theta_g}(z)))\right]\right)$$
+		\item \textbf{Gradient ascent} on discriminator $$\max_{\theta_d}\left( \mathbb{E}_{x\sim p_{data}}\left[\log D_{\theta_d}(x)\right] + \mathbb{E}_{z\sim p(z)} \left[\log(1-D_{\theta_d}(G_{\theta_g}(z)))\right]\right)$$
+		\item \textbf{Gradient ascent} on generator\footnote{$\log(1-x)$ doesn't work well with gradient descent - low gradient on bad samples, high gradient on good samples} $$\max_{\theta_g} \left(\mathbb{E}_{z\sim p(z)} \left[\log(D_{\theta_d}(G_{\theta_g}(z)))\right]\right)$$
 		(Instead of minimizing likelihood of discriminator being correct, now maximize likelihood of discriminator being wrong)
 	\end{itemize}
 	\item GAN training algorithm
