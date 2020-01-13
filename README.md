@@ -1,2 +1,4 @@
-# study-2019-fall
- Studies for 2019 Fall
+# studies
+ Studies for 2019 Fall ~
+ 
+ - CS231n: Convolutional Neural Networks for Visual Recognition (Spring 2017)
