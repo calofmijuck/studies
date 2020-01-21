@@ -1,0 +1,51 @@
+\section{Efficient Methods and Hardware for Deep Learning}
+Deep learning is changing our lives, the models are getting bigger. But there are challenges,
+\begin{itemize}
+	\item \textit{Model size}: It is hard to distribute large models through over-the-air update
+	\item \textit{Speed}: Long training time limits ML researcher's productivity
+	\item \textit{Energy efficiency}: Takes a lot of electricity and hardware
+\end{itemize}~
+\\
+We want to improve the efficiency of deep learning by algorithm-hardware co-design
+
+\subsection{Algorithms for Efficient Inference}
+\begin{itemize}
+	\item \textbf{Pruning}
+	\begin{itemize}
+		\item Remove some of the neurons, and try to reach the same accuracy
+		\item Prune away 80\% of the parameters, but with retraining the leftover parameters, accuracy is recovered to 100\%
+		\item Iterative pruning and retraining will let you prune away up to 90\% without loss of accuracy
+	\end{itemize}
+	\item \textbf{Weight Sharing}
+	\begin{itemize}
+		\item Not all weights have to be exact - too accurate numbers lead to overfitting
+		\item Trained quantization - use centroids
+		\item Discrete weights
+		\item Use Huffman coding to optimize the number of bits used to represent the weights
+	\end{itemize}
+	\item \textbf{Quantization}
+	\begin{itemize}
+		\item Train with floats, and gather the statistics for weight and activation, choose the proper radix point position
+	\end{itemize}
+	\item \textbf{Low Rank Approximation}
+	\begin{itemize}
+		\item For a convolution layer, it can be broken down to 2 convolution layers
+		\item Also works for fully-connected layers by using SVD
+	\end{itemize}
+	\item \textbf{Binary / Ternary Net}
+	\begin{itemize}
+		\item Use only $\pm 1, 0$ to represent numbers
+		\item For training, use the full precision weight, but for inference we only need 3 weights
+	\end{itemize}
+	\item \textbf{Winograd Transformation}
+	\begin{itemize}
+		\item Transform the input feature map to another feature map (easily transformable)
+	\end{itemize}
+\end{itemize}
+
+\subsection{Hardware for Efficient Inference}
+Common goal: Minimize the memory access
+\begin{itemize}
+	\item Google TPU
+	\item EIE: the first DNN accelerator for sparse, compressed model (save memory bandwidth)
+\end{itemize}
