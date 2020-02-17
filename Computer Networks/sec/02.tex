@@ -1,9 +1,199 @@
 \section{Application Layer}
+Previously, we have seen that there are 5 layers in the Internet protocol. We will go through each layer, in a top-down approach. We will cover the application layer in this section. 
 \subsection{Principles of Application}
+\subsubsection{Network Applications}
+\begin{itemize}
+	\item Types: email, web (server software, browser), P2P file sharing, SNS, messenger program, online games, streaming stored video (YouTube, Netflix)
+	\item Run on (different) \textbf{end systems}: network core devices \textit{do not} run user applications. Ex) Routers only transfer information
+	\item Communication over network (between end systems)
+\end{itemize}
+
+\subsubsection{Application Architectures}
+There are two kinds of application structures: \textit{client-server} model, and \textit{peer-to-peer} model
+\begin{itemize}
+	\item \textbf{Client-Server Model}
+	\begin{itemize}
+		\item The \textbf{server} is \textit{always on}, has permanent IP address, since clients must be able to access the server anytime
+		\item For scaling (to support a huge number of clients), a data center is typically built
+		\item The \textbf{client} is a program that communicates with the server. It may be intermittently connected, and may have dynamic IP addresses. For communication, the client must send a request to the server first, using its IP address. Then the server will respond to that IP address.
+		\item Clients do not communicate directly with each other
+	\end{itemize}
+	\item \textbf{Peer-to-Peer Model} (P2P)
+	\begin{itemize}
+		\item There is no \textit{always on} server. Each clients can function both as a client and a server. Arbitrary end systems will directly communicate with each other.
+		\item Peers are intermittently connected and they can change IP addresses, so it is complex to manage.
+		\item \textbf{Self scalability}: New peers bring new service capacity, as well as new service demands 
+	\end{itemize}
+\end{itemize}
+
+\subsubsection{Application Layer Protocol}
+The application layer is on the top of the Internet protocol. Then, the applications on this layer will communicate with the application layer on another end device. The protocol defined for this communication is called the \textbf{application layer protocol}. There are two types of messages that network application protocols exchange - \textbf{request}s and \textbf{response}s.
+\begin{itemize}
+	\item Message \textbf{Syntax}: What kinds of fields are there in the messages? How are the fields delineated?
+	\item Message \textbf{Semantics}: What is the meaning of the information in the fields?
+	\item Message \textbf{Pragmatics}: When and how do we process (send/respond) the messages?
+\end{itemize}
+
+\subsubsection{Application Protocol}
+\begin{itemize}
+	\item Open Protocols
+	\begin{itemize}
+		\item Standardized, open to public, for interoperability.\footnote{\textbf{Interoperability} is a characteristic of a product or system, whose interfaces are completely understood, to work with other products or systems, at present or in the future, in either implementation or access, without any restrictions.}
+		\item Even if some non-authorized clients create a message that obeys the protocol, they can communicate with the server.
+		\item Ex) HTTP, SMTP
+	\end{itemize}
+	\item Proprietary Protocols
+	\begin{itemize}
+		\item A protocol specific for some program
+		\item Ex) Skype
+		\item We cannot communicate with Skype without using the Skype application
+	\end{itemize}
+\end{itemize}
+
+\subsubsection{Requirements of Network Applications}
+\begin{center}
+\begin{tabular}{c|c|c|c}
+	\textbf{Application} & \textbf{Data Loss} & \textbf{Throughput} & \textbf{Time Sensitive} \\ \hline
+	File Transfer & $\times$ & elastic & $\times$\\
+	Email & $\times$ & elastic & $\times$\\
+	Web Documents & $\times$ & elastic & $\times$\\
+	Realtime Audio/Video & loss-tolerant & Audio: 5kbps$\sim$1Mbps / Video: 10kbps$\sim$5Mbps& 100ms\\
+	Stored Audio/Video & loss-tolerant & (same) & A few secs\\
+	Interactive Games & loss-tolerant & $\geq$ Few kbps & 100ms\\
+	Text Messaging & $\times$ & elastic & Yes and no\\\hline
+\end{tabular}
+\end{center}~\\
+The applications that require correct communication of information have \textit{elastic} throughput, since the correctness of the information is a lot more important than the speed of communication.\\
+\\
+These requirements should be met by the \textit{transport layer protocols}. The throughput and other requirements highly depend on the physical devices (routers, cables etc.) that hold up the network structure. The developers on the application layer cannot handle these requirements properly.
+
+\subsubsection{Transport Protocol Services}
+\begin{itemize}
+	\item \textbf{TCP Service} (Transmission Control Protocol)
+	\begin{itemize}
+		\item \textbf{Error control}: In charge of reliable transport between sending and receiving processes
+		\item \textbf{Flow control}: The sender won't overwhelm the receiver (not too much data)
+		\item \textbf{Congestion control}: Throttle sender when network is overloaded
+		\item \textit{Does not provide}: Timing, minimum throughput guarantee, security
+		\item \textit{Connection oriented}: Setup is required between client and server processes
+	\end{itemize}
+	\item \textbf{UDP Service} (User Datagram Protocol)
+	\begin{itemize}
+		\item Unreliable data transfer between sending and receiving processes
+		\item Why do we use UDP? - Some programs may require UDP. For example, the error controlling in TCP lowers the throughput, but UDP will ignore this error, resulting in faster communication, which is suitable for multimedia programs
+	\end{itemize}
+\end{itemize}
+
 \subsection{Web and HTTP}
+\textbf{Web pages} consist of \textbf{objects}. They can be an HTML file, JPEG image, Java applet, audio file, and more. Web page is described by \textbf{HTML-file}(s) which include several referenced objects. Each object is addressable by a \textbf{URL}(Uniform Resource Locator).
+$$\overbrace{\texttt{www.someschool.edu}}^{\text{host name}}/\overbrace{\texttt{someDept/pic.gif}}^{\text{path name}}$$
+
+\subsubsection{HTTP Overview}
+\begin{itemize}
+	\item \textbf{HTTP} (HyperText Transfer Protocol)
+	\begin{itemize}
+		\item Web's application layer protocol
+		\item \textbf{Hyperlink}: A reference to data the reader can directly follow by clicking
+		\item Uses client-server model
+		\item Client uses a browser that requests, receives, and displays the Web objects
+		\item The server is a web server that sends objects in response to request from clients
+	\end{itemize}
+	\item Based on \textbf{TCP}
+	\begin{enumerate}
+		\item Client initiates TCP connection (socket connection) to server
+		\item Server accepts TCP connection from client
+		\item HTTP messages are exchanged between brower and Web server
+		\item TCP connection is closed
+	\end{enumerate}
+	\item \textit{HTTP reponse time} (\textbf{RTT}: Round trip time)
+	\begin{itemize}
+		\item 1 RTT to initiate TCP connection
+		\item 1 RTT for HTTP request and first few bytes of HTTP response to return
+		\item File transmission time
+		\item Total = 2 RTT + file transmission time
+	\end{itemize}
+\end{itemize}
+
+\subsubsection{HTTP Version}
+\begin{itemize}
+	\item \textbf{HTTP/1} (1996)
+	\begin{itemize}
+		\item \textit{Non-persistent} HTTP: Single object per single TCP connection
+		\item Long latency
+	\end{itemize}
+	\item \textbf{HTTP/1.1} (1999)
+	\begin{itemize}
+		\item \textit{Persistent} HTTP: Multiple objects over on TCP connection
+		\item Decreased latency
+		\item \textit{Synchronous} order of response/request pairs over one TCP connection
+	\end{itemize}
+	\item \textbf{HTTP/2} (2015)
+	\begin{itemize}
+		\item \textit{Persistent} HTTP
+		\item \textit{Asynchronous} (parallel) multiple response/request pairs over one TCP connection
+	\end{itemize}
+\end{itemize}
+
+\subsubsection{HTTP Message}
+There are two types of messages: \textbf{request}s and \textbf{response}s.
+\begin{itemize}
+	\item \textbf{Request Message}: Request line + Header lines + Body
+	\item \textbf{Response Message}: Response line + Header lines + Body
+	\item Request line: method, URL, version
+	\item Response line: version, status code, status text
+	\item Header lines: header field name, value
+	\item Body: entity body
+\end{itemize}
+
+\subsubsection{REST}
+\begin{itemize}
+	\item \textbf{REpresentational State Transfer}
+	\begin{itemize}
+		\item HTTP should be \textbf{stateless}. If the state of client is kept in the server, it causes overhead for the server.
+		\item The server will not store each client's states. Instead, the server will store the information about the client in the HTTP message. The server should also store the method to interpret the message. With all these information, the client knows how to fetch the data.
+		\item We call a service \textbf{RESTful} if the service conforms to this architectural style
+	\end{itemize}
+	\item \textbf{Architectural Constraints}
+	\begin{itemize}
+		\item \textit{Client-server architecture}: Separation of the user interface concerns from the data storage concerns
+		\item \textit{Statelessness}: No client context should be stored on the server between requests
+		\item \textit{Cacheability}: Server responses are cachable on client and intermediaries
+		\item \textit{Layered system}: One should be unable to tell whether a client is directly connected to the end server or to an intermediary along the way
+		\item \textit{Uniform interface}: Simplification and decoupling of the architecture (Use of standardized languages - HTML, XML, JSON - that is not restricted by some computer architecture)
+		\item \textit{Code on demand} (optional): Should be able to transfer executable code such as Java applets and JavaScript
+	\end{itemize}
+\end{itemize}
+
 \subsection{Cookies and Web Caching}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 \subsection{SSL/TLS}
 \subsection{Electronic Mail}
 \subsection{Domain Name System}
 \subsection{Peer-to-Peer Application}
 \subsection{Video Streaming and CDNs}
+ 
