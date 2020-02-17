@@ -165,35 +165,40 @@ There are two types of messages: \textbf{request}s and \textbf{response}s.
 \end{itemize}
 
 \subsection{Cookies and Web Caching}
+\subsubsection{Cookies}
+\textbf{Cookies} keep the states of clients.
+\begin{enumerate}
+	\item Client has a cookie file
+	\item A usual HTTP request message is sent to the server (for the first time)
+	\item The server creates an ID for the user, and creates an entry in the database
+	\item The server responds with the ID, and tells the client to set the cookie with the given ID
+	\item Now the client can send HTTP requests using that ID inside the cookie file
+	\item The server (database) performs a cookie-specific action (distinguished by ID), and responds as usual
+	\item A week later, (if the cookie still exists) the cookie can be used again for communication with the server
+\end{enumerate}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+\subsubsection{Web Caching}
+\begin{itemize}
+	\item For some servers (sites) with lots of visitors, request and responses for the exact same site would cause a huge overhead.
+	\item The server prepares a \textbf{proxy server} that caches this information
+	\begin{itemize}
+		\item If the requested object is not in the cache, the proxy server requests the object from the origin server, and caches the data (and also responds to the client)
+		\item Otherwise, the proxy server will used the cached data to respond to the client request
+	\end{itemize}
+	\item Effects of Web Caching
+	\begin{itemize}
+		\item For clients, the response time is reduced
+		\item For servers, it can handle more users (reduced request overheads)
+		\item For local ISPs, the traffic to external server is reduced, so the \textit{access link} can be used efficiently
+	\end{itemize}
+\end{itemize}
 
 \subsection{SSL/TLS}
+
 \subsection{Electronic Mail}
+
 \subsection{Domain Name System}
+
 \subsection{Peer-to-Peer Application}
+
 \subsection{Video Streaming and CDNs}
- 
