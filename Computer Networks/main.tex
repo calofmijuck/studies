@@ -1,0 +1,126 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+\title{\textbf{Computer Networks}}
+\author{Sungchan Yi}
+\date{February 2020}
+
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{geometry}
+\renewcommand{\familydefault}{\sfdefault}
+\renewcommand{\baselinestretch}{1.4}
+
+\geometry{
+    top = 20mm,
+    bottom = 20mm,
+    left = 20mm,
+    right = 20mm
+}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+\subsection{What is the Internet?}
+
+\subsection{Network Edge}
+
+\subsection{Network Core}
+
+\subsection{Internet Structure}
+
+\subsection{Performance Metrics}
+\subsubsection{Evaluation Metrics}
+\begin{itemize}
+    \item \textbf{Delay}: Packet delivering time from source to destination
+    \item \textbf{Packet loss}: Ratio of lost packets to total sent packets\footnote{PDR: Packet delivery ratio}
+    \begin{itemize}
+        \item If the queue is full, the arriving packets will be dropped
+        \item Lost packets may be re-transmitted by previous nodes, by source end system, or not at all
+    \end{itemize}
+    \item \textbf{Throughput}: Amount of traffic delivered / unit time
+    \begin{itemize}
+        \item Rate at which bits are transferred between source and destination
+        \item Can be measured instantaneously, or on average
+        \item \textit{Bottleneck link}: The link on end-end path that constrains the throughput (usually the one with minimum capacity)
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Four sources of delay}
+$$d_{nodal} = d_{proc} + d_{queue} + d_{trans} + d_{prop}$$
+\begin{itemize}
+    \item Queueing Delay
+    \begin{itemize}
+        \item Time waiting at output buffer for transmission
+        \item \textbf{Congestion} dependent
+    \end{itemize}
+    \item Transmission Delay
+    \begin{itemize}
+        \item $d_{trans} = L / R$ where $L$: packet length (bits), $R$: link bandwidth (bps)
+    \end{itemize}
+    \item Processing Delay
+    \begin{itemize}
+        \item Bit error checking
+        \item Decision of output link
+        \item Typically takes less than a few milliseconds (hardware acceleration)
+    \end{itemize}
+    \item Propagation Delay
+    \begin{itemize}
+        \item $d_{prop} = d / s$ where $d$: length of physical link, $s$: signal speed
+    \end{itemize}
+\end{itemize}
+Queueing and transmission delay take up most of the delay.
+
+\subsubsection{More on Queueing Delay}
+$$\textsf{(Traffic Intensity)} = \frac{La}{R}$$
+where $R$ is the link bandwidth (bps) or transmission rate, $L$ is the average packet length (bits), $a$ is the average packet arrival rate. As the traffic intensity $\rightarrow$ 1, the average queueing delay will grow without bound.
+
+\subsection{Protocol Stack}
+A communication protocol stack is composed of several \textbf{layers}. Each layer implements a service via its own internal actions, and by relying on services provided by the underlying layers.\\
+Layering or \textbf{modularization} eases development, maintenance, and updating of the whole system. But this can be harmful in cases when a higher level layer needs information from the lower layers.\footnote{Consider a navigation system, which uses ``physical'' information like actual traffic, when choosing the fastest route between two places. But this ``physical'' information wouldn't normally be visible to other layers.}
+
+\subsubsection{Internet Protocol Stack}
+\begin{enumerate}
+    \item \textbf{Physical}: Bits on the wire
+    \item \textbf{Link}: Data transfer between neighboring network elements
+    \item \textbf{Network}: Routing of datagrams from source to destination
+    \item \textbf{Transport}: Process to process data transfer
+    \item \textbf{Session}: Synchronization, connection management, recovery of data exchange
+    \item \textbf{Presentation}: Allows applications to interpret the meaning of data
+    \item \textbf{Application}: Supporting network applications
+\end{enumerate}
+
+\subsection{Network Security}
+The field of network security arises from these questions:
+\begin{itemize}
+    \item How can bad guys attack our computer networks?
+    \item How do we defend our networks against those attacks?
+    \item How do we design architectures that are immune to attacks?
+\end{itemize}
+
+\subsubsection{Forms of Attacks}
+\begin{itemize}
+    \item Malware
+    \begin{itemize}
+        \item virus: A self-replicating infection by receiving or executing an object
+        \item worm: A self-replicating infection by passively receiving object that gets itself executed
+        \item spyware
+        \item ransomware
+    \end{itemize}
+    \item Packet Sniffing: Promiscuous network interface reads/records all packets passing by
+    \item Denial of Service: Attackers make resources unavailable by sending a huge amount of fake traffic
+    \item Fake Addresses: Send packets with fake source address
+    \item Fake Wi-Fi AP: Steal user's credentials using fake AP
+\end{itemize}
+
+\subsection{History of the Internet}
+\begin{itemize}
+    \item Firstly developed as ARPAnet
+    \item Internetworking architecture = autonomy + minimalism
+    \item TCP/IP, WWW
+\end{itemize}
+
+\section{Application Layer}
+\end{document}
