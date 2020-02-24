@@ -1,11 +1,91 @@
 \section{Introduction}
 \subsection{What is the Internet?}
+\begin{itemize}
+	\item \textbf{Internet} = Inter- + net(work)
+	\item Network of networks
+	\item Various types of networks: mobile network, home network, global ISP, regional ISP
+\end{itemize}
+
+\subsubsection{Components}
+\begin{itemize}
+	\item HW components
+	\begin{itemize}
+		\item End hosts
+		\item Links: copper, fiber, radio, satellite
+		\item Interconnection devices: router, switch, repeater
+	\end{itemize}
+	\item SW components
+	\begin{itemize}
+		\item Operating software
+		\item Application programs
+		\item \textbf{Protocols}
+	\end{itemize}
+\end{itemize}
+
+\subsubsection{Protocols}
+\begin{itemize}
+	\item A defined set of rules and regulations that determine how data is transmitted in telecommunications and computer networking
+	\item All communication activity in Internet is governed by protocols
+	\item Protocols define
+	\begin{itemize}
+		\item Message format
+		\item Order of messages sent and received among network entities
+		\item Actions taken on message transmission and receipt
+	\end{itemize}
+\end{itemize}
 
 \subsection{Network Edge}
+Network edge contain hosts, which are clients and servers.
 
 \subsection{Network Core}
+Network core is a mesh of interconnected routers or switches. They forward packets from one router (or switch) to the next along the path from the source to destination
+
+\subsubsection{Switching Mechanisms}
+\begin{itemize}
+	\item \textbf{Circuit Switching}
+	\begin{itemize}
+		\item End to end resources reserved for communication between source and destination
+		\item Entire data flow through along the path like water
+		\item Resources are dedicated to each connection - the circuit segment is idle if it is note being used
+		\item Common in traditional telephone networks
+		\item Channel allocation methods: frequency division multiplexing (FDM), time division multiplexing (TDM)
+	\end{itemize}
+	\item \textbf{Packet Switching}
+	\begin{itemize}
+		\item Entire data is broken into small packets
+		\item Each packet has its destination address
+		\item Each packet is handled independently
+		\item Packet is transmitted at full link capacity
+		\item Takes $L/R$ seconds to transmit $L$-bit packet into link at $R$ bps
+		\item \textit{Store and forward}: entire packet must arrive at the router before it can be forwarded to the next
+		\item End to end delay $\approx 2L/R$
+		\item If arrival rate of packets exceed the transmission rate of link, packets can be dropped (lost) if the packet queue inside the router is full
+	\end{itemize}
+	\item Comparison
+	\begin{itemize}
+		\item Packet switching allows more users to use the network
+		\item Circuit switching guarantees the quality of service for each connection
+	\end{itemize}
+\end{itemize}
 
 \subsection{Internet Structure}
+Nobody or everybody is in charge of the Internet.
+\begin{itemize}
+	\item End systems connect to the Internet via \textbf{access ISPs} (Internet Service Providers)
+	\item Access ISPs in turn must be interconnected so that any two hosts can communicate with each other
+	\item Resulting network of networks is very complex
+\end{itemize}
+
+\subsubsection{Connecting Access ISPs}
+\begin{itemize}
+	\item How do we \textit{interconnect} the access ISPs?
+	\item Connecting each access ISP to every other one would not be scalable, since we need $\mathcal{O}(n^2)$ connections
+	\item Better: Keep a \textit{global transit ISP} and connect each access ISP to it
+	\item Competing global transit ISPs appear and the are also interconnected by peering link and Internet exchange point (IXP)
+	\item Regional networks arise to connect access networks to global ISPs
+\end{itemize}
+
+
 
 \subsection{Performance Metrics}
 \subsubsection{Evaluation Metrics}
@@ -97,3 +177,5 @@ The field of network security arises from these questions:
 	\item Internetworking architecture = autonomy + minimalism
 	\item TCP/IP, WWW
 \end{itemize}
+
+\pagebreak
