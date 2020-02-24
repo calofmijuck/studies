@@ -194,11 +194,259 @@ There are two types of messages: \textbf{request}s and \textbf{response}s.
 \end{itemize}
 
 \subsection{SSL/TLS}
+\subsubsection{Securing TCP}
+\begin{itemize}
+	\item We often use TCP and UDP for transport layer protocols. But when these protocols were developed back then, security considerations were not taken into account
+	\item TCP and UDP have no encrpytion, even passwords traversed the Internet in clear text
+	\item \textbf{SSL/TLS} provides encrypted TCP connection at the \textit{application layer}
+	\item Assures data integrity\footnote{Data doesn't change during transmission}, and end-point authentication
+	\item \textbf{SSL} (Secured Socket Layer)
+	\begin{itemize}
+		\item SSL v2.0 and v3.0 were released in 1995 and 1996, respectively
+	\end{itemize}
+	\item \textbf{TLS} (Transport Layer Security)
+	\begin{itemize}
+		\item Improved version of SSL v3.0
+		\item More secure than SSL, but slower due to the two step communication processes
+	\end{itemize}
+\end{itemize}
+
+\subsubsection{SSL/TLS Principle}
+\begin{enumerate}
+	\item When client connects to a server, the client asks for a secure SSL session
+	\item The server sends a certificate\footnote{The client must check that this certificate is valid, and this certificate has to be signed by someone that the client trusts.}, that contains the server's public key
+	\item The client sends a one time encryption key for the SSL session, encrypted with the server's public key
+	\item The server decrypts the session key using its private key and establishes a secure session
+	\item Now the client and the server can safely send/receive encrypted data
+\end{enumerate}~
+HTTPS is HTTP + SSL/TLS
 
 \subsection{Electronic Mail}
+\subsubsection{Electronic Mail}
+\begin{itemize}
+	\item There are 3 components that consist electronic mail
+	\begin{itemize}
+		\item \textit{User agents} (clients): edit mail, read mail
+		\item \textit{Mail servers}: Google, Daum, Naver etc.
+		\item \textit{Protocols}: SMPT, POP3, IMAP
+	\end{itemize}
+	\item Components of mail servers
+	\begin{itemize}
+		\item A mailbox for incoming messages
+		\item A message queue for outgoing messages
+		\item A protocol for exchanging mail between mail servers
+	\end{itemize}
+\end{itemize}
+
+\subsubsection{SMTP Protocol}
+\begin{itemize}
+	\item \textbf{SMTP} (Simple Mail Transfer Protocol) [RFC 2821] uses TCP as the transport layer protocol for reliable email delivery
+	\item Three phases of transfer
+	\begin{itemize}
+		\item Handshaking (Check sending server and receiving server)
+		\item Transfer of messages
+		\item Closure
+	\end{itemize}
+	\item Command/Response interaction (like HTTP)
+	\begin{itemize}
+		\item Commands are in ASCII text
+		\item Reponses contain status codes and phrase
+	\end{itemize}
+\end{itemize}
+
+\subsubsection{Mail Access Protocol}
+\begin{itemize}
+	\item \textbf{POP3} (Post Office Protocol 3)
+	\begin{itemize}
+		\item By default, deletes messages from the server after retrieving data
+		\item Disconnects from the server after download 
+		\item Needs to reconnect to the server on each download
+	\end{itemize}
+	\item \textbf{IMAP} (Internet Mail Access Protocol)
+	\begin{itemize}
+		\item Keeps all messages at the server and allows user to organize message folders
+		\item Support synchronization across multiple devices
+		\item Stays connected until the mail client app is closed and downloads messages on demand
+	\end{itemize}
+	\item \textbf{HTTP}
+	\begin{itemize}
+		\item Web-based email
+		\item Used between browser and server
+		\item Hotmail in the mid 1990s
+		\item Google, Yahoo, etc.
+	\end{itemize}
+\end{itemize}
 
 \subsection{Domain Name System}
+To connect on the Internet, the client must know the \textit{address} of the server. This \textit{address} is called an \textbf{IP address}, and it is represented by 4 numbers between 0 and 225. But since these 4 numbers are hard to remember, (imagine having to memorize addresses for each website you use!) people use the \textit{name} of servers, instead of IP addresses.
+
+\subsubsection{Domain Name System}
+\begin{itemize}
+	\item DNS \textbf{translates} an hostname to an IP address
+	\item Procedure (Simplified)
+	\begin{enumerate}
+		\item The client asks the DNS for the IP address of some website
+		\item The DNS responds with the IP address of that website
+		\item The client uses that IP address to connect to the website
+	\end{enumerate}
+	\item Achieves \textit{load distribution} - many IP addresses correspond to one hostname (replicated Web servers), thus requests to the same hostname can be distributed between multiple servers
+	\item \textbf{Distributed database system}
+	\item De-centralized system
+	\begin{itemize}
+		\item Not scalable (for large number of clients)
+		\item Single point of failure: The whole system breaks down when the centralized system fails
+		\item Traffic volume: Bottleneck
+		\item Distant centralized database: Longer delay for connections from far places from the system
+	\end{itemize}
+	\item Therefore uses \textbf{distributed} \& \textbf{hierarchical} database
+	\begin{itemize}
+		\item Root DNS server on the top
+		\item Top-level domains (TLD) on the next level (\texttt{com}, \texttt{org}, \texttt{edu})
+		\item Authoritative domains on the next level
+	\end{itemize}
+	\item Database Query Procedure (Simplified)
+	\begin{enumerate}
+		\item Client wants IP for \texttt{www.amazon.com}
+		\item Client queries root DNS server to find \texttt{com} DNS server
+		\item Client queries \texttt{com} DNS server to get \texttt{amazon.com} DNS server
+		\item Client queries \texttt{amazon.com} DNS server to get the IP address for \texttt{www.amazon.com}
+	\end{enumerate}
+\end{itemize}
+
+\subsubsection{DNS Hierarchy}
+\begin{itemize}
+	\item Root Name Servers
+	\begin{itemize}
+		\item Directly answers requests for records in the root zone
+		\item Answers requests by returning a list of the authoritative name servers for the appropriate top-level domain
+		\item 13 of them worldwide
+	\end{itemize}
+	\item Top Level Domains (TLD)
+	\begin{itemize}
+		\item Responsible for \texttt{com}, \texttt{org}, \texttt{net}, \texttt{edu} ...
+		\item All top-level contry domains like \texttt{uk}, \texttt{fr}, \texttt{ca}, \texttt{kr} ...
+	\end{itemize}
+	\item Authoritative Servers
+	\begin{itemize}
+		\item An organization's own DNS server(s), prociding authoritative hostname to IP mappings for organization's named hosts
+		\item Maintained by organization itself or service provider
+	\end{itemize}
+	\item Local DNS Servers
+	\begin{itemize}
+		\item Does not strictly belong to DNS hierarchy
+		\item Each ISP has on also called ``default name server"
+		\item When the client makes a DNS query, it is sent to its local DNS server
+		\item The local DNS server caches the results of recent queries (name to address translation pairs)
+		\item Can also act as a proxy, forwards query into hierarchy
+	\end{itemize}
+\end{itemize}
+
+\subsubsection{DNS Name Resolution}
+\begin{itemize}
+	\item Situation: Host at \texttt{cis.poly.edu} wants IP for \texttt{gaia.cs.umass.edu}
+	\item \textbf{Iterated Query}
+	\begin{itemize}
+		\item Contacted server replies with the name of server to contact
+		\item \textit{I don't know this name, but ask this server}
+		\item In the procedure below, we assume that no results are cached. If there is a cached result during the process, that result can be used. Then some steps can be skipped
+	\end{itemize}
+	\begin{enumerate}
+		\item Client sends a request to local DNS server
+		\item The local DNS server asks the root DNS server for the \texttt{edu} TLD DNS server
+		\item The root DNS server replies
+		\item The local DNS server asks the \texttt{edu} TLD DNS server for the authoritative DNS server
+		\item The local DNS server asks the authoritative DNS server for the IP of \texttt{gaia.cs.umass.edu}
+		\item The local DNS server replies to the client with the IP address
+	\end{enumerate}
+	\item \textbf{Recursive Query}
+	\begin{itemize}
+		\item Contacted server requests another server
+		\item Puts the burden of name resolution on the contacted name server
+		\item Not recommended due to heavy load at upper levels of hierarchy and security issues
+		\item Systems on upper levels must wait for the result of each query - may result in a DoS attack
+	\end{itemize}
+	\begin{enumerate}
+		\item Client sends a request to local DNS server
+		\item The local DNS server asks the root DNS server
+		\item The root DNS server asks the \texttt{edu} TLD DNS server
+		\item The \texttt{edu} TLD DNS server asks the authoritative DNS server
+		\item The authoritative DNS server replies with the IP address
+		\item The \texttt{edu} TLD DNS server responds to the root DNS server with the IP address
+		\item The root DNS server responds to the local DNS server with the IP address
+		\item The local DNS server replies to the client with the IP address
+	\end{enumerate}
+\end{itemize}
+
+\subsubsection{Attacking DNS}
+\begin{itemize}
+	\item DDoS Attacks
+	\begin{itemize}
+		\item Attacking root DNS servers with traffic - doesn't work well since local DNS servers cache IPs of TLD servers (doesn't connect to the root server)
+		\item Attacking TLD servers can be more dangerous
+	\end{itemize}
+	\item Amplification Attacks
+	\begin{itemize}
+		\item Tricks the DNS server by putting the victim's IP inside the query
+		\item The DNS server will send the result of the query to the victim's IP
+	\end{itemize}
+	\item Pharming Attacks
+	\begin{itemize}
+		\item Private data + Farming
+		\item Domain hijacking, DNS poisoning
+		\item The attacker breaks into the local DNS and modifies some mapping to the attacker's fake website
+		\item The user may connect to that fake website and may enter private information
+	\end{itemize}
+\end{itemize}
 
 \subsection{Peer-to-Peer Application}
+\subsubsection{P2P Architecture}
+\begin{itemize}
+	\item No always-on server
+	\item Arbitrary end systems communicate directly
+	\item Peers are intermittently connected and change IP addresses
+	\item P2P is scalable, compared to client-server model
+\end{itemize}
+
+\subsubsection{BitTorrent}
+\begin{itemize}
+	\item File is divided into 256 KB chunks
+	\item Peers in torrent send/receive file chunks
+	\item Torrent: group of peers exchanging chunks of a file
+	\item Tracker: tracks peers participating in torrent
+	\item A new client arrives, obtains list of peers from tracker, and begins exchanging file chunks with peers
+	\item Chunk Receiving
+	\begin{itemize}
+		\item At any given time, different peers have different subsets of file chunks
+		\item Periodically, client asks each peer for list of chunks that they have
+		\item Client requests missing chunks from peers, \textit{rarest first}
+	\end{itemize}
+	\item Chunk Sending: \textit{tit-for-tat}
+	\begin{itemize}
+		\item To prevent free-riders
+		\item The sender sends chunks to 4 other peers that are currently sending chunks to itself at highest rate
+		\item Other peers will not receive chunks
+		\item The top 4 peers are evaluated every 10 seconds
+		\item For newly connected peers to receive chunks, the sender selects a random peer every 30 seconds, and starts sending chunks to it
+		\item Now the newly connected peer may be included in the top 4 peers
+		\item More upload results in better peers, resulting in faster download of data
+	\end{itemize}
+\end{itemize}
 
 \subsection{Video Streaming and CDNs}
+\subsubsection{Content Distribution Networks}
+\begin{itemize}
+	\item Video traffic is the major consumer of Internet bandwidth
+	\item Challenge: \textbf{Scalability} - If we only use a single video server ...
+	\begin{itemize}
+		\item Single point of failure
+		\item Point of network congestion
+		\item Longer path to distant clients
+		\item Multiple copies of same video sent over outgoing link
+	\end{itemize}
+	\item Solution: \textit{multiple copies of videos at multiple geographically distributed sites}
+	\item CDN servers contain multiple copies of the same content, and lets the client stream the content data from the nearest/fastest CDN server
+\end{itemize}
+
+
+
+
