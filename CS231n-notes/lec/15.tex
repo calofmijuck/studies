@@ -3,10 +3,10 @@ Deep learning is changing our lives, the models are getting bigger. But there ar
 \begin{itemize}
 	\item \textit{Model size}: It is hard to distribute large models through over-the-air update
 	\item \textit{Speed}: Long training time limits ML researcher's productivity
-	\item \textit{Energy efficiency}: Takes a lot of electricity and hardware
+	\item \textit{Energy efficiency}: Takes a lot of electricity and hardware (larger model $\rightarrow$ more memory reference $\rightarrow$ more energy)
 \end{itemize}~
 \\
-We want to improve the efficiency of deep learning by algorithm-hardware co-design
+We want to improve the efficiency of deep learning by \textbf{algorithm-hardware co-design}
 
 \subsection{Algorithms for Efficient Inference}
 \begin{itemize}
@@ -25,7 +25,8 @@ We want to improve the efficiency of deep learning by algorithm-hardware co-desi
 	\end{itemize}
 	\item \textbf{Quantization}
 	\begin{itemize}
-		\item Train with floats, and gather the statistics for weight and activation, choose the proper radix point position
+		\item Train with normal floats, and gather the statistics for weight and activation such as mininum, maximum
+		\item Choose the proper radix point position to decrease the number of bits used
 	\end{itemize}
 	\item \textbf{Low Rank Approximation}
 	\begin{itemize}
@@ -40,12 +41,56 @@ We want to improve the efficiency of deep learning by algorithm-hardware co-desi
 	\item \textbf{Winograd Transformation}
 	\begin{itemize}
 		\item Transform the input feature map to another feature map (easily transformable)
+		\item Transform the filter map to a tensor and calculate the product as a pointwise multiplication
+		\item Transform the output product back to a convolution (inverse transform) 
 	\end{itemize}
 \end{itemize}
 
 \subsection{Hardware for Efficient Inference}
-Common goal: Minimize the memory access
+Common goal: \textit{Minimize the memory access}
 \begin{itemize}
-	\item Google TPU
+	\item Google TPU: 8 bit integers
 	\item EIE: the first DNN accelerator for sparse, compressed model (save memory bandwidth)
+	\begin{itemize}
+		\item Take advantage of sparse weight and activation - ignore multiplication of 0
+		\item Share weights
+		\item Encoded weight (relative index) used in matrix multiplication
+	\end{itemize}
+\end{itemize}
+
+\subsection{Algorithms for Efficient Training}
+\begin{itemize}
+	\item \textbf{Parallelization}
+	\begin{itemize}
+		\item Frequency and single threaded performance is getting plateaued, but the number of cores is increasing
+		\item Take advantage of increasing cores $\rightarrow$ parallelization
+		\item \textit{Data Parallelism}: Feed multiple data into the network (but limited by batch size)\footnote{If the batch is too large, SGD becomes gradient descent, which is impractical.}
+		\item \textit{Model Parallelism}: Split the model over multiple processors - by layer, conv layers by map region, FC layers by output activation
+		\item \textit{Hyperparameter Parallelism}: Try many alternative networks in parallel
+	\end{itemize}
+	\item \textbf{Mixed Precision with FP16 and FP32}
+	\begin{itemize}
+		\item FP16 storage/input, full precision product
+		\item Summation with FP32 accumulator, convert to FP32 result for weight updates
+	\end{itemize}
+	\item \textbf{Model Distillation}
+	\begin{itemize}
+		\item Multiple large senior neural networks teach a student model neural network (smaller model size)
+		\item Training on softened result label results in much faster convergence on smaller data
+	\end{itemize}
+	\item \textbf{Dense-Sparse-Dense Training} (DSD)
+	\begin{itemize}
+		\item Prune the network, train it, then recover the weights and train again
+		\item Learn the trunk first, then learn the leaves
+		\item DSD produces same model architecture but can find better optimization solution,
+		arrives at better local minima, and achieves higher prediction accuracy across a wide
+		range of deep neural networks on CNNs/RNNs/LSTMs
+	\end{itemize}
+\end{itemize}
+
+\subsection{Hardware for Efficient Training}
+\begin{itemize}
+	\item GPUs can be used for training
+	\item Computation, memory, communication have to be balanced in order to achieve good performance
+	\item Volta GPU, Tensor Core, Google Cloud TPU
 \end{itemize}
