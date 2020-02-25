@@ -278,7 +278,7 @@ HTTPS is HTTP + SSL/TLS
 \end{itemize}
 
 \subsection{Domain Name System}
-To connect on the Internet, the client must know the \textit{address} of the server. This \textit{address} is called an \textbf{IP address}, and it is represented by 4 numbers between 0 and 225. But since these 4 numbers are hard to remember, (imagine having to memorize addresses for each website you use!) people use the \textit{name} of servers, instead of IP addresses.
+To connect on the Internet, the client must know the \textit{address} of the server. This \textit{address} is called an \textbf{IP address}, and it is represented by 4 numbers between 0 and 255. But since these 4 numbers are hard to remember, (imagine having to memorize addresses for each website you use!) people use the \textit{name} of servers, instead of IP addresses.
 
 \subsubsection{Domain Name System}
 \begin{itemize}
@@ -419,12 +419,13 @@ To connect on the Internet, the client must know the \textit{address} of the ser
 		\item At any given time, different peers have different subsets of file chunks
 		\item Periodically, client asks each peer for list of chunks that they have
 		\item Client requests missing chunks from peers, \textit{rarest first}
+		\item Then the rarity of chunks will decrease, and be more available to other peers
 	\end{itemize}
 	\item Chunk Sending: \textit{tit-for-tat}
 	\begin{itemize}
-		\item To prevent free-riders
-		\item The sender sends chunks to 4 other peers that are currently sending chunks to itself at highest rate
-		\item Other peers will not receive chunks
+		\item To prevent free-riders (people who download but do not provide content)
+		\item The sender sends chunks to 4 other peers that are currently sending chunks to itself at the highest rate
+		\item Other peers will not receive chunks from this sender
 		\item The top 4 peers are evaluated every 10 seconds
 		\item For newly connected peers to receive chunks, the sender selects a random peer every 30 seconds, and starts sending chunks to it
 		\item Now the newly connected peer may be included in the top 4 peers
