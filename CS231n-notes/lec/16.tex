@@ -1,0 +1,97 @@
+\section{Adversarial Examples and Adversarial Training}
+\subsection{Adversarial Examples}
+\begin{itemize}
+	\item \textbf{Adversarial example} is an example that has been carefully computed to be misclassified
+	\item In a lot of cases, we can add noise to the original image that is indistinguishable from the human eye, but the classification result will change
+	\item This noise that we add can be carefully constructed so that we can attack the CNN into misclassification
+	\item These adversarial examples came up when people tried to fool spam filters in 2004
+	\item In 2013, researchers found that neural networks could also be fooled
+	\item Many models can be fooled, such as linear models (logistic regression, softmax regression, SVMs, decision trees, nearest neighbors)
+\end{itemize}
+
+\subsection{Reasons Behind Adversarial Examples}
+\begin{itemize}
+	\item Why do these adversarial examples occur?
+	\item First thoughts - Are they from \textit{overfitting}?
+	\begin{itemize}
+		\item A complicated deep neural network will learn to fit the training set, but its behavior on the test set is undefined. Then it can make \textit{random} mistakes that attackers can exploit
+		\item The model usually has too much parameters\footnote{more parameters than it actually needs to represent the training task}, it can assign some probability mass on some regions on the input space randomly. In these random regions, adversarial examples may occur 
+		\item If overfitting is the actual cause, then each adversarial example is more or less the result of bad luck. If we fit the model again or use a slightly different model, we would expect the model to make different random mistakes (on the inputs that are off the training set)
+		\item But it turned out that this was not random
+		\item Many different models would classify the same adversarial examples and they would assign the same class to them
+		\item We took the difference between an original example and an adversarial one, which gave us a direction in the input space, and we could add that same direction vector to any clean example to almost always get an adversarial example
+	\end{itemize}
+	\item Could this be \textit{underfitting}?
+	\begin{itemize}
+		\item Linear models\footnote{Or models that are too simple} may not be able to capture the features of the input space completely (ex. the results of XOR cannot be captured with a hyperplane)
+		\item Linear models also have high confidence on inputs that are very far from the decision boundary, even though inputs from that region were never given in training time
+		\item But are deep neural nets actually linear?
+		\item It turns out that modern neural nets are \textit{piecewise linear} or (ReLU, Maxout, Sigmoid\footnote{The problem of sigmoid is that input data has to be carefully tuned so that the input will be near 0 - or we get small gradients - and the sigmoid function is approximately linear near 0}, LSTM\footnote{Uses \textit{addition} between time steps to accumulate and remember information over time. Then interaction between a very distant time step in the past and the present will be highly linear})
+		\item Linearity on \textit{the mapping from the input of the model to the output of the model}.\footnote{The mapping from the parameters to the output is obviously non-linear, since weight matrices are multiplied together. This is what makes neural network training so difficult}
+		\item Very small changes to many pixels can result in very far travels in the input vector space
+		\item You can create changes that are almost imperceptible but actually move the input data really far and get a large dot product with the coefficients of the linear function that the model represents
+		\item When generating adversarial examples, we want to create perturbation, but not change the class. We use the maxnorm to constrain the perturbation
+		\begin{equation*}
+			J(\widetilde{x}, \theta) \approx J(x, \theta) + (\widetilde{x} - x)\trans \nabla_x J(x)
+		\end{equation*}
+		We want to maximize $J(x, \theta) + (\widetilde{x} - x)\trans \nabla_x J(x)$ subject to $\norm{\widetilde{x} - x}_\infty \leq \epsilon$.
+		\item No pixel can change by more than $\epsilon$, but the $L_2$ norm can get really big, but you can't concentrate all the changes for that $L_2$ norm to erase parts of the original input
+		\item \textit{Fast Gradient Sign Method}: Take the gradient of the cost that we used to train the network (w.r.t the input) and take the sign of that gradient. The sign will enforce the maxnorm constraint
+		$$\widetilde{x} = x + \epsilon \cdot \textrm{sign}(\nabla_x J(x))$$
+		\item Base on this linearity hypothesis, the researchers found out that there were \textit{adversarial subspaces} in the input space
+		\item Originally, they thought that adversarial examples exist nearly everywhere\footnote{Just like rational numbers existing inside real numbers}, since they could generate an adversarial example corresponding to any clean example
+		\item But further analysis revealed that every real example is actually near on of those boundaries, that if you cross it, you enter the adversarial subspace
+		\item Once in the adversarial subspace, all the points nearby will also be adversarial examples
+		\item This poses security threats, because it suggests that you only need to get the \textit{direction} right, not the exact coordinate in the input space
+	\end{itemize}
+	\item \textit{Adversarial examples are not noise}
+	\begin{itemize}
+		\item Noise has very little effect on the classification decision compared to adversarial examples
+		\item In high dimensional spaces, when you choose some reference vector, and choose a random vector, these two vectors will have zero dot product, on average
+		\item Check Talyor series approximation - random vectors have almost no effect on the cost, but adversarial examples are chose to maximize the effect
+	\end{itemize}
+ 	\item Estimating the dimension of the adversarial subspace
+ 	\begin{itemize}
+ 		\item The dimensions tell you how likely you are to find an adversarial example by generating random noise
+ 		\item If most of the directions are adversarial, then random directions would end up being adversarial most of the time
+ 		\item \textit{Different models will often misclassify the same adversarial examples}
+ 		\item The larger the dimension is, it is more likely that the two adversarial subspaces intersect - you can transfer the same adversarial examples from one model to another
+ 	\end{itemize}
+ 	\item Modern machine learning algorithms are wrong almost everywhere, they work well only on naturally occurring inputs 
+ 	\item Quadratic Models
+ 	\begin{itemize}
+ 		\item Shallow RBF networks can resist adversarial perturbations very well
+ 		\item Adding perturbations to the input image (to try and fool the network) using the gradients of this classifier, the image will actually change and it will be perceptible to the human eye
+ 		\item But the problem is that this shallow model has low accuracy, so if you try to make it deeper, it gets extremely difficult to train, because of the gradients are near zero throughout RN
+ 	\end{itemize}
+	\item Adversarial examples can generalize from one dataset to another and one model to another
+	\begin{itemize}
+		\item When we train networks, we want them to generalize, independent of the training data we choose
+		\item So in training, the network can learn similar weights, even though the training data is different
+		\item This makes them vulnerable to similar adversarial examples
+		\item If you want to attack some target model, you can gather your own data, or look at the input/outputs of that target model, and train your own network to generate adversarial examples and attack the target model (You don't even have to know the parameters, algorithms, architecture) (Highly transferable)
+		\item An adversarial example that can fool all the models in an ensemble is highly likely to fool another model
+	\end{itemize}
+	\item Studying adversarial examples could tell us how to significantly improve current machine learning algorithms (deal with ambiguity or unexpected inputs)
+\end{itemize}
+
+\subsection{Adversarial Training}
+\begin{itemize}
+	\item How do we defend against these attacks?
+	\item Using a generative model is not sufficient to solve the problem
+	\item Training on adversarial examples might work, for example, training on adversarial example and testing on clean examples gave higher accuracy, meaning that the adversarial examples are a good regularizer
+	\item If the model is overfitting, it can make the model overfit less, but if the model is underfitting, it will make the model underfit worse
+	\item Other models like SVM, linear regression, kNNs will not benefit much from adversarial training, because these are always going to be \textit{linear}
+	\item Deep neural nets, on the other hand, they have a clear path to resisting adversarial examples, because they can be trained to be non-linear
+	\item \textit{Virtual Adversarial Training}: You can train without labels!
+	\item Suppose during training the model classified input $x$ as class $A$ or $B$. We add adversarial perturbation intended to change the guess of $\widetilde{x}$, but constrain the network so that the output of $\widetilde{x}$ should match the old guess (class $A$ or $B$)
+	\item Enables semi-supervised learning where you can learn from both unlabeled and labeled examples
+	\item Applying model-based optimization (after solving the adversarial example problem) will give us new inventions by finding input that maximizes model's predicted performance and build something we wish we had
+\end{itemize}
+
+\subsection{Summary on Adversarial Examples}
+\begin{itemize}
+	\item Attacking is extremely easy, but defending is difficult
+	\item Adversarial training provides regularization and semi-supervised learning
+	\item The out-of-domain input problem is a bottleneck for model-based optimization generally
+\end{itemize}
