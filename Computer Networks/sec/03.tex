@@ -1,1 +1,109 @@
 \section{Transport Layer}
+\subsection{Transport Layer Services}
+Some terminology:
+\begin{itemize}
+	\item \textbf{Program}: An executable file containing a set of instructions written to perform a specific job (usually stored on a disk)
+	\item \textbf{Process}: An executing \textit{instance} of a program that resides on the primary memory. Several processes can be related to the same program at the same time
+	\item \textbf{Thread}\footnote{\textbf{Thread} of execution is the smallest sequence of programmed instructions that can be managed independently by a scheduler, which is typically a part of the operating system.}: The smallest executable unit of a process
+\end{itemize}
+
+\subsubsection{Transport Layer Function}
+\begin{itemize}
+	\item Provides \textbf{logical communication between processes}
+	\item The layer relies on and enhances services from the network layer\footnote{The network layer provides logical communication between \textbf{hosts}}
+	\item Sending Side
+	\begin{itemize}
+		\item Applies \textbf{fragmentation} to application messages
+		\item Passes segments\footnote{We see terms like \textit{frame}, \textit{datagram}, \textit{packet}, \textit{segment} when we study computer networks. They are similar, but we use layer-specific terms to represent the information unit in that layer. In the transport layer, we use the term \textbf{segment}.} to network layer
+	\end{itemize}
+	\item Receiving Side
+	\begin{itemize}
+		\item \textbf{Reassembles} segments into messages
+		\item Passes the assembled message to the application layer
+	\end{itemize}
+\end{itemize}
+
+\subsubsection{TCP and UDP}
+\begin{itemize}
+	\item \textbf{Transmission Control Procotol} (TCP)\footnote{Refer to 2.1.6.}
+	\begin{itemize}
+		\item \textbf{Reliable}, \textbf{in-order}\footnote{This doesn't mean that the order of sent messages is always preserved when receiving. (physically) In the application layer's point of view, it just \textit{seems} like it's received in the same order.} delivery
+		\item \textbf{Connection oriented} service: connection setup, error control, flow control, congestion control
+	\end{itemize}
+	\item \textbf{User Datagram Protocol} (UDP)
+	\begin{itemize}
+		\item Unreliable, unordered delivery
+		\item Connection-less service: faster than TCP
+	\end{itemize}
+\end{itemize}
+
+\subsection{Multiplexing and Socket}
+\subsubsection{Multiplexing and Demultiplexing}
+\begin{itemize}
+	\item This is the most basic role of the transport layer
+	\item \textbf{Multiplexing} at sender: the sender sends data from its own multiple applications through network
+	\item Data from multiple services are sent through a single shared channel
+	\item \textbf{Demultiplexing} at receiver: the receiver delivers data packets to their appropriate receivers among its own multiple applications
+	\item \textbf{Port numbers} are used for demultiplexing
+	\begin{itemize}
+		\item Different applications are assigned to different port numbers
+		\item Transport layer segments have fields for source/destination port numbers in common
+		\item Used to differentiate segments
+	\end{itemize}
+	\item Note that for connection oriented protocols (like TCP), the source IP and port are also used to differentiate each connection\footnote{Multiple applications can listen on the same port.}
+	\item But how does the sender know the destination port on the receiver?
+\end{itemize}
+
+\subsubsection{Sockets}
+\begin{itemize}
+	\item API between application layer and transport layer
+	\item Processes send/receive messages to/from its \textbf{socket}
+	\item Analogous to door
+	\begin{itemize}
+		\item Sender passes message through the door
+		\item Sender relies on transport infrastructure on other side of the door to deliver message to socket at the receiving process
+	\end{itemize}
+	\item The \textit{socket} is provided as the form of APIs by the operating system
+\end{itemize}
+
+\subsection{User Datagram Protocol}
+\begin{itemize}
+	\item Only provides the basic functions (multiplexing)
+	\item \textbf{Connection-less} service
+	\begin{itemize}
+		\item Each UDP segment is handled independently of others
+		\item \textit{Unreliable}: UDP segments may be lost or delivered out of order to app
+	\end{itemize}
+	\item But since UDP is fast, it is used for streaming multimedia applications, DNS, and SNMP
+	\item For reliable transfer over UDP, the application must add that function (such as application specific error recovery)
+	\item \textbf{UDP segment header}: Source port (16 bits), Destination port (16 bits), length, checksum, payload
+	\item \textbf{Advantages}
+	\begin{itemize}
+		\item No connection establishment (no delay)
+		\item Simple: No connection state at sender/receiver
+		\item Small header size\footnote{Compare this to TCP headers.}
+		\item No congestion control: UDP can blast away as fast as desired
+	\end{itemize}
+	\item \textbf{UDP Checksum}
+	\begin{itemize}
+		\item Detects transmission errors
+		\item UDP doesn't have to provide reliable connections, but this checksum can be used to provide additional features elsewhere
+		\item Sender creates a 16 bit integer checksum code of segment contents including the header
+		\item The receiver will compute the checksum of the received message, and checks if the computed value is equal to the received value
+	\end{itemize}
+\end{itemize}
+
+\subsubsection{Checksum Method}
+\begin{itemize}
+	\item Checksum is the 16-bit one's complement of the one's complement sum of a pseudo header of information from the IP header, the UDP header, and the data, padded with zero octets at the end (if necessary) to make a multiple of two octets.\footnote{RFC 768}
+\end{itemize}
+
+\subsection{Reliable Data Transfer Principles}
+
+\subsection{Transmission Control Protocol}
+
+\subsection{Congestion Control}
+
+\subsection{TCP Congestion Control Algorithm}
+
+\subsection{TCP vs UDP}
