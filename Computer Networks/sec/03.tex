@@ -99,6 +99,134 @@ Some terminology:
 \end{itemize}
 
 \subsection{Reliable Data Transfer Principles}
+\subsubsection{Principles of Reliable Data Transfer}
+\begin{itemize}
+	\item Service abstraction (provided to the upper-layer) through a reliable channel
+	\item \textit{Service model of TCP}: No corruption and no loss of data, delivered in the order in which they were sent
+	\item The lower layers of the network (below transport layer) is unreliable, but the TCP protocol in the transport layer will pre-process any existing errors and pass them onto the receiver.
+\end{itemize}
+
+\subsubsection{Error Types and Solution}
+\begin{itemize}
+	\item \textbf{Bit Error}
+	\begin{itemize}
+		\item Some of the bits are changed
+		\item This can be checked by comparing the checksum in every segment
+		\item If the receiver successfully received the packet, \textbf{ACK}(acknowledgment) message is sent to the sender
+	\end{itemize}
+	\item \textbf{Packet Loss} (Data of ACK)
+	\begin{itemize}
+		\item Packet is gone, the receiver doesn't receive the packet
+		\item \textit{Timeout} of sender's timer - the sender sends the packet and waits for ACK, but if ACK doesn't arrive, the sender will re-send the packet
+		\item But consider the case where the returning ACK is lost - the sender will re-send the packet anyways, but how does the receiver know that this packet is a duplicate or not?
+		\item To solve this problem, \textit{packet sequence number} is used
+		\item Suppose the receiver received packet $k$, and sent an ACK message. If packet $k$ arrives again, the receiver will know that this packet was re-sent
+		\item Also, for transmitting large data, the data will be segmented and labeled with a packet sequence number. Then when the receiver receives the data, it will be possible to re-assemble the original data
+		\item Packet sequence numbers allow \textit{ordered delivery} and data duplication prevention
+	\end{itemize}
+\end{itemize}
+
+\subsubsection{Automatic Repeat Request}
+\begin{itemize}
+	\item For communication error recovery, we need a packet retransmission method
+	\item We use \textbf{ARQ}(Automatic Repeat reQuest)
+	\item \textbf{Stop and wait}: sending and checking one segment at a time
+	\item \textbf{Pipelining method}: sending and checking multiple segments at a time (\textit{go back} $N$, \textit{selective repeat} method)
+\end{itemize}
+
+\paragraph{Stop and Wait}
+\begin{itemize}
+	\item Sender sends a packet and waits for the receiver's response with ACK
+	\item After receiving the ACK message, the sender will send the next packet
+	\item If the sender doesn't receive the ACK message, the sender will re-send the previous packet
+	\item The receiver responds with ACK if the calculated checksum matches the checksum value in the segment
+	\item The length of \textit{timeout} $t$ is the main problem! 
+	\item If $t$ is too long, the sender has to \textit{wait} for that amount of time which will slow down the transmission. 
+	\item If $t$ is too short, a normal transmission may be thought of as a timeout (premature timeout). This may happen when the network is too busy. The ACK message couldn't arrive on time. This will cause the sender to re-send the same message again (often), which is a waste of network resource
+	\item Thus when setting the timeout time, the \textit{round trip time} between the sender and the receiver should be considered
+	\item Performance Analysis
+	\begin{itemize}
+		\item 1 Gbps link, 15 ms propagation delay, 1 kB packet
+		$$d_{trans} = \frac{L}{R} = \frac{8000 \text{ bits}}{10^9 \text{ bits/}s} = 8  \mu s $$
+		\item \textbf{Utilization}: fraction of time sender busy sending
+		$$U = \frac{d_{trans}}{\text{RTT} + d_{trans}} = 0.00027$$
+		\item If RTT\footnote{Round trip time} is 30 ms, 1 kB packet is sent every 30 ms, \textit{so 33 kb/s throughput over 1 Gbps link}\footnote{What a waste of resources!}
+		\item Usually $d_{trans}$ is very small (fast link), compared to RTT. Thus $U \approx 0$, which means that the time spent in sending the packet is nearly 0\%
+		\item Note that the size of ACK message is very small, thus it is ignored here
+	\end{itemize}
+\end{itemize}
+
+\paragraph{Pipelined Protocols}
+\begin{itemize}
+	\item \textbf{Pipelining}: multiple packets can be sent and received
+	\item Range of sequence numbers must be increased
+	\item Buffering is necessary at sender and receiver
+	\item Suppose we send $n$ packets in the above example. ($n$-packet pipelining) Then the utilization\footnote{The denominator doesn't change because we measure the time from [the moment that the first packet was sent], to [the time when ACK for the first packet arrived].} would be
+	$$U = \frac{n\cdot d_{trans}}{\text{RTT} + d_{trans}} = 0.00027 n$$ 
+	which is a lot better. Now we try to increase the value of $n$
+\end{itemize}
+
+\paragraph{Go Back $N$}
+\begin{itemize}
+	\item The sender can have up to $N$ unacknowledged packets in pipeline at once
+	\item The receiver only sends \textbf{cumulative ACK} - if the receiver finds an error in packet $k$, then the sender has to re-send packets $k, \dots, n$
+	\item The cumulative ACK will mean: ``transmit successful, up to these packets"
+	\item The sender has a timer for \textit{oldest} unacknowledged packet, and when timeout occurs, the sender will re-send all unacknowledged packets
+\end{itemize}
+
+\paragraph{Selective Repeat}
+\begin{itemize}
+	\item The sender can have up to $N$ unacknowledged packets in pipeline at once
+	\item The receiver sends \textbf{individual ACK} for each packet - if the receiver finds an error in packet $k$, only that packet needs to be re-sent
+	\item The sender has a timer for each unacknowledged packet, and when timeout for packet $k$ occurs, only packet $k$ needs to be re-sent
+\end{itemize}
+
+\subsubsection{Go Back $N$ - In Detail}
+\paragraph{Sender's Perspective}
+\begin{itemize}
+	\item Packet sequence number is contained in each packet header
+	\item A \textbf{window} is defined - the number of consecutive unacknowledged packets allowed
+\end{itemize}
+\begin{enumerate}
+	\item Let the window size be $n$, and suppose we have sent up to $k$ ($k\leq n$) packets.
+	\item The receiver will receive the data, and send a cumulative ACK for packet $i$ ($i\leq k$)
+	\item Since the cumulative ACK for packet $i$ has arrived, packets $1, \dots, i$ are acknowledged
+	\item The timer will be moved to packet $i + 1$ and wait for the next ACK. If the ACK does not arrive in time, packets $i+1, \dots, k$ will be re-sent
+\end{enumerate}
+\begin{itemize}
+	\item Note that $k$ (number of sent packets) can keep changing in the process above, just keep in mind that the acknowledged packet number $i$ should be less than $k$
+	\item Furthermore, the window size $n$ is not fixed. Hence the term \textbf{sliding window}
+	\item The larger the window size, higher the throughput, but the number of packets to re-send on an error will also increase
+	\item The window size should be controlled so that it does not cause network congestion or receiver buffer overflow
+\end{itemize}
+
+\paragraph{Receiver's Perspective}
+\begin{itemize}
+	\item When packet $k$ arrives,
+	\begin{itemize}
+		\item \textit{If}: Packet $k+1$ arrives shortly\footnote{Depends on the receiver's settings} after packet $k$ has arrived, wait for the next packet
+		\item \textit{Else if}: Packet $k+1$ doesn't arrive (due to congestion or other reasons), respond with \textit{cumulative} ACK for packet $k$ and wait for the next packet
+		\item \textit{Else}: A packet other than $k+1$ arrives (ex. packet $k+1$ has been lost), discard the packet\footnote{It's going to be re-sent from the sender anyways} and re-send the last sent ACK
+	\end{itemize}
+	\item The \textit{Else} case is the only problem. The sender would be expecting ACK for packet $k+1$, but the sender will get the ACK for the last successful transmission\footnote{This duplicate ACK will be ignored}
+	\item Then packet $k+1$ will cause timeout and the sender will resend the packets from $k+1, \dots$
+\end{itemize}
+
+\subsubsection{Selective Repeat - In Detail}
+\begin{itemize}
+	\item The receiver will buffer the packets, in case some packet is lost - the receiver waits for that packet to be re-sent, and when the receiver gets it, it can pass that information to the application layer\footnote{Recall that transport layers had to re-assemble the packets before passing them to the application layer, so that it would look like the packets were received in order}
+	\item \textbf{Maximum packet sequence number $\geq$ 2 $\times$ window size}
+	\item For example, with 4 sequence numbers 0, 1, 2, 3 and window size 3, there could be a case where
+	\begin{enumerate}
+		\item The sender sent packets 0, 1, 2
+		\item \textit{The receiver got those packets and now expects packets 3, 0, 1}
+		\item Unfortunately, the ACK for packets 0, 1, 2, do not arrive to the sender
+		\item The sender re-sends packets 0, 1, 2 - which are the same packets from step 1
+		\item The receiver has no idea that this packet is a re-sent version!
+		\item The receiver will accept the re-sent packet 0 as the next packet,   
+	\end{enumerate}
+	\item The receiver doesn't know what's happening on the senders side. It can only distinguish the packets by the packet sequence number. If the packet sequence number is too small for the window size, data may be corrupted during transmission
+\end{itemize}
 
 \subsection{Transmission Control Protocol}
 
