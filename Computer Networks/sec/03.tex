@@ -229,6 +229,130 @@ Some terminology:
 \end{itemize}
 
 \subsection{Transmission Control Protocol}
+\subsubsection{Overview}
+\begin{itemize}
+	\item \textit{Point-to-point}: One sender, one receiver
+	\item \textbf{Connection Oriented Service}\footnote{How many times has this been repeated...?}
+	\begin{itemize}
+		\item Reliable transfer, delivery in order
+		\item Handshaking initializes sender and receiver state before data exchange
+	\end{itemize}
+	\item \textbf{Pipelined Transmission}
+	\begin{itemize}
+		\item Window size is set by TCP congestion and flow control
+		\item \textit{Congestion control}: transmission rate is controlled to avoid congestion in network
+		\item \textit{Flow control}: sender will not overwhelm the receiver
+		\item \textit{MSS}: maximum segment size
+	\end{itemize}
+	\item \textbf{Full-Duplex Connection}
+	\begin{itemize}
+		\item In the same connection, data can flow bidirectionally
+	\end{itemize}
+\end{itemize}
+
+\subsubsection{TCP Segment Structure}
+\begin{itemize}
+	\item Source/Destination port in the front
+	\item Followed by sequence number, acknowledgment number, data offset\footnote{Similar to header length - gives the offset of actual data in the segment}, flags, window size, header/data checksum, urgent pointer
+	\item At least 20 bytes, optional fields can follow
+\end{itemize}
+
+\paragraph{Sequence and Acknowledgment Number}
+\begin{itemize}
+	\item \textbf{Sequence number} is the \textit{byte stream number} of the first byte in a segment's data
+	\item Large data is fragmented into segments (with size of MSS) when they are sent through the network
+	\item The receiver must know the original order of these segments to re-assemble the original data\footnote{Recall that the segments don't actually arrive to the receiver in order, it is the transport layer's job to actually \textit{order} them}
+	\item If the first segment has sequence number $n$, the next sequence number will be $n+MSS$.\footnote{The first sequence number isn't necessarily 0, it depends.}
+	\item \textbf{Acknowledgment number} is the sequence number of the next segment expected by the receiver, and functions as a \textit{cumulative ACK}
+	\item After the receiver gets the first segment, it will put $n + MSS$ (next sequence number) as the acknowledgment number and send it to the sender
+	\item The sender will know that the receiver has correctly received data up to that acknowledgment number
+	\item There's a \textbf{ACK flag} in the TCP header. If the flag bit is 1, it means that the information in the acknowledgment number is actually meaningful and works as a cumulative ACK
+	\item In \textit{go back $N$} or \textit{selective repeat}, the data packet and the ACK packet are the same in TCP
+	\item TCP is \textit{full duplex}. The receiver can send its own data to the sender, and also send an ACK number with a single TCP segment. The receiver can make use of the ACK number field in the header to contain the ACK number for the data received from the sender
+\end{itemize}
+
+\subsubsection{TCP Reliable Data Transfer}
+\begin{itemize}
+	\item TCP provides reliable data transfer service on top of IP's \textit{unreliable service}
+	\item TCP provides \textbf{pipelined segments} (for throughput/performance), \textbf{cumulative ACKs}, and \textbf{single re-transmission timer}
+	\item Using cumulative ACKs and a single transmission timer may seem similar to \textit{go back $N$}, but the difference here is that TCP doesn't throw away packets. TCP will hold on to the received packet in its \textit{receive buffer}\footnote{Its size is limited. But this is possible because the size of TCP's receiving buffer is larger than the congestion window. So the receiver can store the data, provided that it arrives correctly.}
+	\item Also this \textit{storage of packets} may seem similar to \textit{selective repeat}\footnote{Kind of a fusion of both methods.}
+\end{itemize}
+
+\begin{itemize}
+	\item \textbf{TCP Sender}
+	\begin{itemize}
+		\item When receiving data from application, create a segment with the sequence number and send it, start timer if not already running
+		\item When timer expires, re-transmit the segment that caused the timeout and restart timer
+		\item When receiving ACK, update acknowledged packet list and start timer if there are still unacknowledged segments
+	\end{itemize}
+	\item \textbf{TCP Receiver} (When receiving data from sender)
+	\begin{itemize}
+		\item If it discovers a bit error through checksum, drop the packet
+		\item Check the sequence number so that there would be no gaps between sequence numbers. If there isn't any problem, send cumulative ACK
+		\item If the packet is duplicated, drop the packet
+	\end{itemize}
+	\item Note that \textit{handling out of order segments} depends on implementation
+\end{itemize}
+
+\paragraph{TCP Timeout Value}
+\begin{itemize}
+	\item Must be longer than RTT, but this is unknown before connection, and also may change depending on the current network congestion status
+	\item In TCP, a \textbf{time out interval} is set by  \textit{estimated RTT} + (safety margin)
+	\item The hosts send data and measure the \textit{sample RTT} - the time from segment transmission until ACK arrival
+	\item Using the \textit{sample RTT} values, \textit{estimated RTT} is \textit{iteratively} calculated by moving averages, with some weight $\alpha$
+	$$t_{n} = (1-\alpha) t_{n-1} + \alpha s_n $$
+	where $s_n$ is the $n$-th sample RTT and $t_n$ is the estimated RTT after sampling $n$ times
+\end{itemize}
+
+\subsubsection{Fast Re-transmit}
+\begin{itemize}
+	\item From the above calculations, it turns out that the timeout period is relatively long, so we get a long delay before re-sending the lost packet
+	\item Senders often send many segments back-to-back. But if a segment is lost, there will likely be many duplicate ACKs.
+	\item For example, suppose we send packets 1, 2, 3, 4, 5, but packet 2 was lost and every other packets were received. Then the receiver would send the same ACK for packets 3 $\approx$ 5
+	\item \textit{If sender receives 3 duplicate ACKs (except for the first normal ACK) with same data, the sender will re-send the unacknowledged segment with the smallest sequence number}
+	\item TCP re-transmissions are triggered by: timeout events and duplicated ACKs 
+\end{itemize}
+
+\subsubsection{TCP Flow Control}
+\begin{itemize}
+	\item The receiver controls the sender, so that the sender won't overflow receiver's buffer by transmitting too much data too fast. This is called \textbf{flow control}
+	\item The remaining size of the receiver's buffer will be transmitted in the \textbf{receive window} field in the TCP header
+	\item The sender will limit the size of transmission to the value inside the \textit{receive window} field
+\end{itemize}
+
+\subsubsection{Connection Management}
+\begin{itemize}
+	\item 9 flags in the TCP header - 3 are not almost never used
+	\item Remaining 6: URG(\textit{urgent}), ACK(\textit{acknowledge}), PSH(\textit{push}), RST(\textit{reset}), SYN(\textit{synchronize}), FIN(\textit{finale})
+	\item URG, PSH are also not used frequently
+	\item \textbf{RST, SYN, FIN} flags contribute to TCP connection management
+\end{itemize}
+
+\paragraph{Three Way Handshake}
+\begin{enumerate}
+	\item The client requests for a connection and sends a segment with SYN flag set, and a sequence number $x$ to start with
+	\item The server will receive the segment and respond with ACK flag set, and ACK number will be $x+1$. Moreover, since TCP is \textit{full duplex}, the segment will have SYN flag set and the sequence number will be $y$
+	\item The client responds with ACK flag set and ACK number $y+1$
+\end{enumerate}
+
+\paragraph{Closing Connection}
+\begin{enumerate}
+	\item The client will send a segment with FIN flag set
+	\item The server will respond with ACK flag set
+	\item Connection from client to server is closed\footnote{Note that at this point, the connection from the server to the client still lives. The server can still send data.}
+	\item The server will send a segment with FIN flag set
+	\item The client will respond with ACK flag set
+	\item Connection from server to client is closed
+\end{enumerate}
+
+\paragraph{RST Flag}
+\begin{itemize}
+	\item The client will ask for a port in the server to connect with
+	\item If there are no processes listening to that port, the server will respond with a segment with RST flag set
+	\item Used as a flag to reset the connection 
+\end{itemize}
+
 
 \subsection{Congestion Control}
 
