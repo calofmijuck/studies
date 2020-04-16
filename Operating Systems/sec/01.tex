@@ -1,0 +1,63 @@
+\section{컴퓨터 시스템의 소개}
+\subsection{컴퓨터 하드웨어의 구성}
+\begin{itemize}
+	\item \textbf{하드웨어}: 데이터를 처리하는 물리적 기계장치
+	\item \textbf{소프트웨어}: 작업을 지시하는 명령어로 작성한 프로그램
+	\item \textbf{운영체제}: \textbf{하드웨어를 관리하는 소프트웨어}
+\end{itemize}
+
+\subsubsection{프로세서 (CPU)}
+\begin{itemize}
+	\item Central Processing Unit
+	\item 컴퓨터 하드웨어에 부착된 모든 장치의 동작을 제어하고 명령을 실행한다
+	\item 연산장치, 제어장치, 레지스터로 구성
+\end{itemize}
+
+\subsubsection{메모리}
+\begin{itemize}
+	\item Memory Hierarchy
+	\item (빠른 속도/적은 용량) 레지스터 - 캐시 - 메인 메모리 - 보조 기억 장치 (느린 속도/큰 용량)
+	\item 비용, 속도, 용량이 다른 메모리를 효과적으로 사용하여 시스템 성능 향상
+	\item \textbf{레지스터}: 프로세서 내부, 가장 빠른 메모리
+	\item \textbf{메인 메모리}
+	\begin{itemize}
+		\item 프로세서 외부에 있으며, DRAM 주로 사용
+		\item 다수의 셀(cell)로 구성, 셀이 $k$ 비트이면 셀에 $2^k$ 종류의 값을 저장 가능
+		\item 셀은 주소로 참조되며, $n$ 비트 주소라면 주소 범위는 $0 \sim 2^n-1$ (physical address)
+		\item Virtual memory address 와 mapping 되어 사용
+		\item \textbf{메모리 접근 시간}: 명령이 발생한 후 주소를 검색하여 읽기/쓰기를 시작할 때까지 걸린 시간
+		\item \textbf{메모리 사이클 시간}: 두 번의 연속적인 메모리 동작 사이에 필요한 최소 지연 시간
+	\end{itemize}
+	\item \textbf{캐시 (cache)}
+	\begin{itemize}
+		\item 프로세서와 메인 메모리의 속도 차이를 보완하는 고속 버퍼
+		\item 데이터를 block 단위로 가져와 프로세서에 워드 단위로 전달하여 속도를 높인다
+		\item 프로세서가 참조하려는 정보가 캐시에 존재하면 cache hit, 존재하지 않으면 cache miss
+		\item 캐시가 동작하는 이유는 \textbf{지역성(locality)} - 공간적(spatial), 시간적(temporal)
+		\item Spatial locality: 참조한 주소와 인접한 주소의 내용을 다시 참조하는 특성
+		\item Temporal locality: 한 번 참조한 주소를 곧 다시 참조하는 특성
+	\end{itemize}
+\end{itemize}
+
+\subsubsection{시스템 버스}
+\begin{itemize}
+	\item 하드웨어를 물리적으로 연결하여 데이터를 주고받게 하는 통로
+	\item 다양한 신호를 시스템 버스로 전달
+	\item 데이터 버스, 주소 버스, 제어 버스
+\end{itemize}
+
+\subsubsection{주변 장치}
+\begin{itemize}
+	\item 나머지 하드웨어 구성 요소
+	\item 입력 장치: 데이터를 외부에서 입력하는 장치
+	\item 출력 장치: 처리한 데이터를 외부로 보내는 장치
+\end{itemize}
+
+\subsection{컴퓨터 시스템의 동작}
+\begin{enumerate}
+	\item 입력장치로 정보를 입력받아 메모리에 저장
+	\item 메모리에 저장한 정보를 프로그램 제어에 따라 인출하여 연산장치에서 처리
+	\item 처리한 정보를 출력 장치에 표시하거나 보조 기억장치에 저장
+\end{enumerate}
+
+\pagebreak

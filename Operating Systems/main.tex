@@ -1,0 +1,37 @@
+\documentclass[12pt]{article}
+\usepackage{kotex}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{titlesec}
+\usepackage{chngcntr} 
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\geometry{
+	top = 20mm,
+	bottom = 20mm,
+	left = 20mm,
+	right = 20mm
+}
+\setcounter{tocdepth}{1}
+\title{\textbf{운영체제}}
+\author{Sungchan Yi}
+\date{2019 Fall}
+
+\counterwithin*{footnote}{section}
+% \pagenumbering{gobble}
+\renewcommand{\baselinestretch}{1.2}
+
+\renewcommand*\contentsname{목차}
+
+\begin{document}
+\maketitle
+
+\tableofcontents
+
+\pagebreak
+\input{./sec/01.tex}
+\input{./sec/02.tex}
+
+\end{document}
