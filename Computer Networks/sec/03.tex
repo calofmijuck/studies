@@ -355,7 +355,158 @@ Some terminology:
 
 
 \subsection{Congestion Control}
+\subsubsection{Network Congestion}
+\begin{itemize}
+	\item Congestion was not an issue before the 1970s, when the Internet was first developed. There weren't many nodes, and there wasn't much traffic
+	\item \textbf{Congestion collapse}
+	\begin{itemize}
+		\item When the offered load is smaller than the network capacity, the traffic is transmitted to the destination. (offered load $\approx$ effective load)
+		\item But as the offered load increases and exceeds the network capacity, the effective load decreases and eventually goes to 0.\footnote{Network will have more data to process, then the delay for each packet will increase, causing timeouts a lot more often, and causes re-transmission. Eventually, the effective load will decrease.}
+	\end{itemize}
+	\item \textbf{Congestion}: Too many sources sending too much data too fast for the network to handle
+	\item Difference between \textit{flow control}
+	\begin{itemize}
+		\item Flow control is a point-to-point issue, between a sender and a receiver
+		\item Flow control problem could be resolved only by knowing the receiver buffer size, which is in the receiver window field in the TCP header
+		\item Congestion control is a \textit{global} issue
+		\item All the nodes that share the whole network have to yield to each other - only then the traffic will decrease
+	\end{itemize}
+	\item Manifestations: lost packets (buffer overflow at routers), long delays (queueing in router buffers)
+\end{itemize}
+
+\subsubsection{Congestion Control Approaches}
+\paragraph{Network Assisted}
+\begin{itemize}
+	\item Data from multiple sources go through routers
+	\item The routers \textit{notify} the end systems, and provide feedback that congestion is happening, and also provides the explicit rate for the sender to send data at
+	\item Single bit indicating congestion (SNA, DECbit, TCP/IP\footnote{There is a flag in the TCP header for \textit{explicited congestion notification}. But this is rarely used.}, ECN, ATM)
+	\item But this is quite complicated and causes problems - TCP uses end-to-end
+\end{itemize}
+
+\paragraph{End to End}
+\begin{itemize}
+	\item No explicit feedback from the network 
+	\item Congestion is inferred from the observed loss and delay by the end system
+	\item Approach taken by TCP
+\end{itemize}
+
+\subsubsection{TCP Congestion Control Overview}
+\begin{itemize}
+	\item \textbf{AIMD} approach: sender increases transmission rate (window size), probing for usable bandwidth, until loss occurs
+	\begin{itemize}
+		\item \textit{Additive increase}: increase \texttt{cwnd} by 1 MSS\footnote{Maximum segment size} every RTT until loss is detected
+		\item \textit{Multiplicative decrease}: Cut \texttt{cwnd} in half after loss
+	\end{itemize}
+	\item \textbf{Congestion window} (\texttt{cwnd}): Maximum amount of un-ACKed packets in transit, without causing congestion
+	\item (Size of data between \textit{last byte sent} and \textit{last byte ACKed}) $\leq$ $\min$(\texttt{cwnd}, \texttt{rwnd})\\
+	\texttt{rwnd}: Receive window (receiver buffer)
+	\item \texttt{cwnd} is dynamic, changes with respect to network congestion
+	\item How do you decide the size of \texttt{cwnd} when connection has just began?
+\end{itemize}
+
+\paragraph{Slow Start}
+\begin{itemize}
+	\item When connection begins, increase rate exponentially, until the first loss event occurs
+	\begin{itemize}
+		\item Initially set \texttt{cwnd} as 1 MSS
+		\item Double \texttt{cwnd} every RTT, if the sent packet is ACKed
+	\end{itemize}
+	\item Note that the \textit{initial rate} is slow, but the size increases exponentially fast
+	\item When should this increase stop?
+\end{itemize}
+
+\paragraph{Congestion Avoidance}
+\begin{itemize}
+	\item If all nodes increase its \texttt{cwnd} exponentially, this would cause congestion very fast
+	\item A variable \texttt{ssthresh} (slow start threshold) is used
+	\item On a loss event, \texttt{ssthresh} is set to half of [\texttt{cwnd} value of the most recent successful transfer]\footnote{\texttt{ssthresh} starts at some value (may be high) when the end system connects to the network for the first time. As time passes and the system transmits data through the network, this \texttt{ssthresh} value will be maintained}
+	\item If the \texttt{cwnd} size exceeds \texttt{ssthresh}, \texttt{cwnd} increases by a single MSS every RTT
+	\item Exponential increase if less than \texttt{ssthresh}, linear increase after exceeding \texttt{ssthresh}
+\end{itemize}
 
 \subsection{TCP Congestion Control Algorithm}
+\begin{itemize}
+	\item The following TCP variants were or (currently) is the standard
+\end{itemize}
+
+\subsubsection{TCP Tahoe (1988)}
+\begin{itemize}
+	\item Slow start, congestion avoidance
+	\item When loss is detected, set \texttt{cwnd} to 1
+	\item \textbf{Fast re-transmit}: re-transmission upon 3 duplicate ACKs 
+	\item Slow start begins on timeout and fast re-transmit
+\end{itemize}
+
+\subsubsection{TCP Reno (1990)}
+\begin{itemize}
+	\item Limitations of Tahoe
+	\begin{itemize}
+		\item Doesn't differentiate between losses indicated by timeout and duplicate ACKs
+		\item Always sets \texttt{cwnd} to 1 MSS (throughput decrease)
+	\end{itemize}
+	\item Two (different) responses to packet losses by Reno
+	\item Loss indicated by \textit{timeout}
+	\begin{itemize}
+		\item Set \texttt{cwnd} to 1 MSS
+		\item \textit{Slow start} to \texttt{ssthresh}, then congestion avoidance begins
+	\end{itemize}
+	\item Loss indicated by \textit{fast re-transmit}
+	\begin{itemize}
+		\item \texttt{cwnd} is cut in half
+		\item \textbf{Fast recovery}, then congestion avoidance
+	\end{itemize}
+\end{itemize}
+
+\paragraph{Fast Recovery}
+\begin{itemize}
+	\item Half of \texttt{cwnd} size is maintained until a non-duplicate ACK is received
+	\item Amount of packets in transit is kept from decreasing more than expected
+	\item Operation
+	\begin{enumerate}
+		\item Upon the event of 3 duplicate ACKs, reduce \texttt{cwnd} to 1/2
+		\item Re-transmit the oldest un-ACKed packet
+		\item Inflate the congestion window by the number of duplicated packets
+		\item A non-duplicate ACK starts congestion avoidance
+	\end{enumerate}
+\end{itemize}
+
+\subsubsection{TCP NewReno (1999)}
+\begin{itemize}
+	\item Vulnerability of Reno's fast recovery - in case of multiple packet losses\footnote{And usually, multiple packets are lost, not just single one}, \texttt{cwnd} may be reduced too much (exponential way)
+	\item Reno stops fast recovery on non-duplicated ACK
+	\item But NewReno restricts the exit from recovery until all data packets from the initial congestion window are ACKed (resistant to multiple packet losses)
+	\item Exits from fast recovery only when a new data ACK is received
+	\item Keeps the sequence number of the last data packet sent before entering fast recovery	
+\end{itemize}
+
+\subsubsection{TCP SACK (1996)}
+\begin{itemize}
+	\item Limited information of cumulative ACKs
+	\begin{itemize}
+		\item ACK of only the last in-order packet
+		\item Reno's fast recovery assumes loss of only 1 data packet
+		\item A duration of the recovery is directly proportional to the number of packet losses
+	\end{itemize}
+	\item \textbf{SACK} (Selective ACK): receiver provides information about several packet losses in a single ACK message by reporting blocks of successfully delivered data packets
+	\item Client sends packets 1, 2, 3, 4 and if packet 2 is lost, ACK message from the server will contain: ACK for packet 1, SACK for 3, 4
+	\item Then the client only has to re-transmit packet 2
+\end{itemize}
 
 \subsection{TCP vs UDP}
+\begin{itemize}
+	\item Fairness between connections
+	\begin{itemize}
+		\item TCP has AIMD - difference of throughput between connections is reduced by half, when loss occurs, and eventually the difference tends to 0 (fairness)
+		\item UDP sends the amount the sender wants to send (unfair)
+		\item Note that multimedia applications do not want the rate throttled by congestion control, so they use UDP and tolerate packet loss
+	\end{itemize}
+\end{itemize}
+
+\begin{center}
+	\begin{tabular}{l|l}
+		\textbf{TCP} & \textbf{UDP} \\\hline
+		 - Slower but reliable transfers & - Fast but non-guaranteed transfers \\
+		 - Email, web browsing & - VoIP, music streaming\\
+		 - Unicast & - Unicast, multicast, broadcast
+	\end{tabular}
+\end{center}
