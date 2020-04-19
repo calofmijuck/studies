@@ -57,7 +57,7 @@ The application layer is on the top of the Internet protocol. Then, the applicat
 	File Transfer & $\times$ & elastic & $\times$\\
 	Email & $\times$ & elastic & $\times$\\
 	Web Documents & $\times$ & elastic & $\times$\\
-	Realtime Audio/Video & loss-tolerant & Audio: 5kbps$\sim$1Mbps / Video: 10kbps$\sim$5Mbps& 100ms\\
+	Real-time Audio/Video & loss-tolerant & Audio: 5kbps$\sim$1Mbps / Video: 10kbps$\sim$5Mbps& 100ms\\
 	Stored Audio/Video & loss-tolerant & (same) & A few secs\\
 	Interactive Games & loss-tolerant & $\geq$ Few kbps & 100ms\\
 	Text Messaging & $\times$ & elastic & Yes and no\\\hline
@@ -102,10 +102,10 @@ $$\overbrace{\texttt{www.someschool.edu}}^{\text{host name}}/\overbrace{\texttt{
 	\begin{enumerate}
 		\item Client initiates TCP connection (socket connection) to server
 		\item Server accepts TCP connection from client
-		\item HTTP messages are exchanged between brower and Web server
+		\item HTTP messages are exchanged between browser and Web server
 		\item TCP connection is closed
 	\end{enumerate}
-	\item \textit{HTTP reponse time} (\textbf{RTT}: Round trip time)
+	\item \textit{HTTP response time} (\textbf{RTT}: Round trip time)
 	\begin{itemize}
 		\item 1 RTT to initiate TCP connection
 		\item 1 RTT for HTTP request and first few bytes of HTTP response to return
@@ -197,7 +197,7 @@ There are two types of messages: \textbf{request}s and \textbf{response}s.
 \subsubsection{Securing TCP}
 \begin{itemize}
 	\item We often use TCP and UDP for transport layer protocols. But when these protocols were developed back then, security considerations were not taken into account
-	\item TCP and UDP have no encrpytion, even passwords traversed the Internet in clear text
+	\item TCP and UDP have no encryption, even passwords traversed the Internet in clear text
 	\item \textbf{SSL/TLS} provides encrypted TCP connection at the \textit{application layer}
 	\item Assures data integrity\footnote{Data doesn't change during transmission}, and end-point authentication
 	\item \textbf{SSL} (Secured Socket Layer)
@@ -228,7 +228,7 @@ HTTPS is HTTP + SSL/TLS
 	\begin{itemize}
 		\item \textit{User agents} (clients): edit mail, read mail
 		\item \textit{Mail servers}: Google, Daum, Naver etc.
-		\item \textit{Protocols}: SMPT, POP3, IMAP
+		\item \textit{Protocols}: SMTP, POP3, IMAP
 	\end{itemize}
 	\item Components of mail servers
 	\begin{itemize}
@@ -250,7 +250,7 @@ HTTPS is HTTP + SSL/TLS
 	\item Command/Response interaction (like HTTP)
 	\begin{itemize}
 		\item Commands are in ASCII text
-		\item Reponses contain status codes and phrase
+		\item Responses contain status codes and phrase
 	\end{itemize}
 \end{itemize}
 
@@ -324,11 +324,11 @@ To connect on the Internet, the client must know the \textit{address} of the ser
 	\item \textbf{Top Level Domains} (TLD)
 	\begin{itemize}
 		\item Responsible for \texttt{com}, \texttt{org}, \texttt{net}, \texttt{edu} ...
-		\item All top-level contry domains like \texttt{uk}, \texttt{fr}, \texttt{ca}, \texttt{kr} ...
+		\item All top-level country domains like \texttt{uk}, \texttt{fr}, \texttt{ca}, \texttt{kr} ...
 	\end{itemize}
 	\item \textbf{Authoritative Servers}
 	\begin{itemize}
-		\item An organization's own DNS server(s), prociding authoritative hostname to IP mappings for organization's named hosts
+		\item An organization's own DNS server(s), providing authoritative hostname to IP mappings for organization's named hosts
 		\item Maintained by organization itself or service provider
 	\end{itemize}
 	\item Local DNS Servers

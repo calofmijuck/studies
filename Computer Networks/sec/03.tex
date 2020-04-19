@@ -25,7 +25,7 @@ Some terminology:
 
 \subsubsection{TCP and UDP}
 \begin{itemize}
-	\item \textbf{Transmission Control Procotol} (TCP)\footnote{Refer to 2.1.6.}
+	\item \textbf{Transmission Control Protocol} (TCP)\footnote{Refer to 2.1.6.}
 	\begin{itemize}
 		\item \textbf{Reliable}, \textbf{in-order}\footnote{This doesn't mean that the order of sent messages is always preserved when receiving. (physically) In the application layer's point of view, it just \textit{seems} like it's received in the same order.} delivery
 		\item \textbf{Connection oriented} service: connection setup, error control, flow control, congestion control
@@ -128,7 +128,7 @@ Some terminology:
 
 \subsubsection{Automatic Repeat Request}
 \begin{itemize}
-	\item For communication error recovery, we need a packet retransmission method
+	\item For communication error recovery, we need a packet re-transmission method
 	\item We use \textbf{ARQ}(Automatic Repeat reQuest)
 	\item \textbf{Stop and wait}: sending and checking one segment at a time
 	\item \textbf{Pipelining method}: sending and checking multiple segments at a time (\textit{go back} $N$, \textit{selective repeat} method)
