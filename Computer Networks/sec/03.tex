@@ -309,7 +309,7 @@ Some terminology:
 \begin{itemize}
 	\item From the above calculations, it turns out that the timeout period is relatively long, so we get a long delay before re-sending the lost packet
 	\item Senders often send many segments back-to-back. But if a segment is lost, there will likely be many duplicate ACKs.
-	\item For example, suppose we send packets 1, 2, 3, 4, 5, but packet 2 was lost and every other packets were received. Then the receiver would send the same ACK for packets 3 $\approx$ 5
+	\item For example, suppose we send packets 1, 2, 3, 4, 5, but packet 2 was lost and every other packets were received. Then the receiver would send the same ACK for packets 3 $\sim$ 5
 	\item \textit{If sender receives 3 duplicate ACKs (except for the first normal ACK) with same data, the sender will re-send the unacknowledged segment with the smallest sequence number}
 	\item TCP re-transmissions are triggered by: timeout events and duplicated ACKs 
 \end{itemize}
