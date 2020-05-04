@@ -28,10 +28,105 @@
 	\item In \textit{software-defined network}(SDN), routing function and forwarding function are separated - The central server determines the optimal route, and the switches do the forwarding according to the route given by the central server 
 \end{itemize}
 
-\newpage
 \subsection{Inside of Router}
+\begin{itemize}
+	\item router input ports $\rightarrow$ high-speed switching fabric + routing processor $\rightarrow$ router output ports
+\end{itemize}
+
+\subsubsection{Input Port Functions}
+\begin{itemize}
+	\item physical layer $\rightarrow$ data link layer $\rightarrow$ decentralized switching
+	\item \textbf{Physical layer} determines if the input is 0 or 1 (bit level)
+	\item \textbf{Data link layer} - Explained later in Chapter 5. Checks errors, etc.
+	\item IP datagram is created after these two layers
+	\item IP datagrams may not be processed in real-time, because switching fabric may be busy - datagrams are stored in a buffer called \textbf{input queue}
+	\item \textbf{Decentralized switching}
+	\begin{itemize}
+		\item Using header field values, lookup output port using forwarding table in input port memory
+		\item The goal is to complete input port processing at `line speed'
+		\item \textit{Queueing} is done if datagrams arrive faster than forwarding rate into switch fabric
+	\end{itemize}
+\end{itemize}
+
+\paragraph{Input Port Queueing}
+\begin{itemize}
+	\item Fabric may be slower than input ports combined. Then queueing occurs at input queues
+	\item Queueing delay and loss may occur due to input buffer overflow
+	\item \textbf{Head-of-the-line blocking}: queued datagram at front of the queue may prevent other datagrams in queue from moving forward
+\end{itemize}
+
+\subsubsection{Switching Fabrics}
+\begin{itemize}
+	\item Transferring packet from input buffer to appropriate output buffer
+	\item \textit{Switching rate}: rate at which packets can be transferred from inputs to outputs
+	\item Switching rate is often measured as a multiple of input/output line rate
+	\item $N$ inputs: switching rate of $N$ times line rate is desirable
+	\item Three types of switching fabrics: memory, bus, interconnection network
+\end{itemize}
+
+\paragraph{Switching via Memory}
+\begin{itemize}
+	\item First generation routers
+	\item Traditional computers with switching under direct control of CPU
+	\item Packets are copied to system's (main) memory, and the IP in the header is read and sent to the destination
+	\item Speed is limited by memory bandwidth (2 bus crossings per datagram)
+\end{itemize}
+
+\paragraph{Switching via Bus}
+\begin{itemize}
+	\item Datagram from input port memory to output port memory via a shared bus (direct copying - faster)
+	\item Any input port can be sent to any output port (decided by CPU)
+	\item But because a shared bus is used, \textit{bus contention} occurs: switching speed is limited by bus bandwidth
+	\item When sending a datagram, an input port and an output port will be used exclusively (limitation of speed, because of a shared bus)
+\end{itemize}
+
+\paragraph{Switching via Interconnection Network}
+\begin{itemize}
+	\item Multiple datagrams can be sent at the same time, if the datagrams do not share ports - if the output port has to be shared, collision is inevitable
+	\item A lot faster than memory/bus method
+	\item Banyan networks, crossbar, other interconnection nets are used for multiprocessing
+	\item Banyan networks use less switches compared to crossbars so it may be cheaper, but more susceptible to HOL blocking or collisions 
+\end{itemize}
+
+\subsubsection{Output Port Functions}
+\begin{itemize}
+	\item \textbf{Buffering} is required when datagrams arrive from fabric faster than the transmission rate
+	\item \textbf{Scheduling} discipline chooses among queued datagrams for transmission
+	\item Scheduling: choosing the next packet to send on link
+	\item \textbf{FIFO}\footnote{First in first out, or sometimes FCFS, for first come first served}: send in order of arrival to queue
+	\item Discard policy: if packets arrive to a full queue, which packet should be drop?
+	\begin{itemize}
+		\item \textit{Tail drop}: Drop the arriving packet
+		\item \textit{Priority}: Drop the packet on priority basis
+		\item \textit{Random}: Drop a random packet
+	\end{itemize}
+\end{itemize}
+
+\paragraph{Priority Scheduling}
+\begin{itemize}
+	\item Sends highest priority queued packet
+	\item Keep two queues, for high/low priority packets, respectively
+	\item Multiple classes, with different priorities
+	\item Priority class may depend on marking or other header info such as IP source/destination, port numbers etc.
+	\item Packets in the low priority queue will be transmitted if the high priority queue is empty - causes problems
+\end{itemize}
+
+\paragraph{Round Robin (RR) Scheduling}
+\begin{itemize}
+	\item Keep multiple classes and queues
+	\item Scan all queues round and around. For each cycle, send a \textit{single} packet if the queue is not empty
+	\item Each queue is given a chance to send its packets so this method is a bit different compared to priority scheduling
+	\item But if there are less (kinds of) packets corresponding to some class, the packets are likely to be processed a lot faster (less delay)
+\end{itemize}
+
+\paragraph{Weighted Fair Queueing (WFQ) Scheduling}
+\begin{itemize}
+	\item Generalized round robin: RR + weights
+	\item Each class gets weighted amount of service in each cycle
+\end{itemize}
 
 \subsection{Internet Protocol Overview}
+\newpage
 
 \subsection{IP Addressing}
 
