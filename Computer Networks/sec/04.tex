@@ -1,2 +1,44 @@
 \section{Network Layer I}
 \subsection{Overview of Network Layer}
+\subsubsection{Network Layer}
+\begin{itemize}
+	\item Transport segment from sending host to receiving host
+	\item Sending side encapsulates segments (from transport layer) into \textbf{datagrams}\footnote{`Message' or `packet' that is on the network layer level} and sends them
+	\item Receiving side receives datagrams and delivers the segments to transport layer
+	\item Network layer protocols exists in \textbf{every} host and router
+	\item Router examines header fields in all IP datagrams passing through it - the destination is determined by \textbf{IP address}
+\end{itemize}
+
+\subsubsection{Two Key Functions of Network Layer}
+\paragraph{Routing}
+\begin{itemize}
+	\item Determines the route taken by packets from source to destination
+	\item Routing algorithms help create the forwarding table
+\end{itemize}
+
+\paragraph{Forwarding}
+\begin{itemize}
+	\item Moves packets from router's input to appropriate router output
+	\item Packet delivery to the next node
+\end{itemize}
+
+\paragraph{Traditional vs SDN Network}
+\begin{itemize}
+	\item In traditional IP networks, routing and forwarding is done in the same system (for each router and switch)
+	\item In \textit{software-defined network}(SDN), routing function and forwarding function are separated - The central server determines the optimal route, and the switches do the forwarding according to the route given by the central server 
+\end{itemize}
+
+\newpage
+\subsection{Inside of Router}
+
+\subsection{Internet Protocol Overview}
+
+\subsection{IP Addressing}
+
+\subsection{Datagram Forwarding}
+
+\subsection{Dynamic Host Configuration Protocol}
+
+\subsection{Network Address Translation}
+
+\subsection{IPv6}
