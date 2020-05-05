@@ -126,10 +126,53 @@
 \end{itemize}
 
 \subsection{Internet Protocol Overview}
-\newpage
+\begin{itemize}
+	\item Network layer functions of host and router
+	\item \textbf{Routing protocols} - path selection, RIP, OSPF, BGP\footnote{Routing information protocol, open shortest path first, border gateway protocol}
+	\item \textbf{IP protocol} - addressing conventions, datagram format, packet handling conventions
+	\item \textbf{ICMP\footnote{Internet control message protocol} protocol} - error reporting, router signaling
+\end{itemize}
+
+\subsubsection{IP Datagram Format}
+\begin{itemize}
+	\item 20 bytes of header + options (if necessary)
+	\begin{itemize}
+		\item \textit{Version}: 4 or 6
+		\item \textit{Header length}: offset of data / length of the header + options
+		\item \textit{Type of service}: multimedia data, real-time data... rarely used
+		\item Datagram length: length of the datagram
+		\item \textit{16-bit identifier, flags, fragment offset}: For fragmentation and reassembly of segments in routers
+		\item \textit{Time to live}(TTL): maximum number of remaining hops, decremented at each router
+		\item \textit{Upper layer}: Upper layer protocol to deliver payload to (TCP or UDP)
+		\item \textit{Header checksum}: cycle redundancy check (CRC)
+		\item \textit{Source/Destination IP address}: 32 bit
+	\end{itemize}
+\end{itemize}
+
+\subsubsection{IP Fragmentation \& Reassembly}
+\begin{itemize}
+	\item Network links have \textit{maximum transfer unit} (MTU) 
+	\item Each network uses different link types, so they have different MTUs
+	\item Large IP datagrams should be divided (fragmented) within the network
+	\item Reassembly will occur at the final destination
+	\item IP header bits are used to identify and order related fragments
+	\item \textit{Identifier}: Datagrams fragmented from large datagrams contain the same ID
+	\item \textit{Fragment offset}: Offset of this datagram's data before fragmentation. 13 bits are used for offset, so the value is divided by 8 (flag uses 3 bits)\footnote{MTU - (header size) is divided by 8 to calculate the offset}
+	\item \textit{Flag}: 3 bits. First bit is reserved, second bit is for \textit{don't fragment flag} (DF), last bit is for \textit{more fragment flag} (MF)
+	\item If MF flag of a packet is 0, it is the last datagrams among fragmented datagrams.
+\end{itemize}
+
+\subsubsection{TTL}
+\begin{itemize}
+	\item TTL field (8 bytes)
+	\item Included to ensure that datagrams do not circulate forever (ex. a long-lived routing loop) in the network
+	\item Decremented by one each time the datagram is processed by a router
+	\item If TTL reaches 0, a router must drop that datagram
+\end{itemize}
 
 \subsection{IP Addressing}
 
+\newpage
 \subsection{Datagram Forwarding}
 
 \subsection{Dynamic Host Configuration Protocol}
