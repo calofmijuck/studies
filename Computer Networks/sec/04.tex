@@ -171,9 +171,68 @@
 \end{itemize}
 
 \subsection{IP Addressing}
+\begin{itemize}
+	\item \textbf{IP address}: 32 bit identifier for host, router interface
+	\item \textit{Interface}: connection between host/router and physical link
+	\begin{itemize}
+		\item Routers typically have multiple interfaces
+		\item Hosts typically have one or two interfaces
+	\end{itemize}
+	\item IP address associated with each interface
+	\item IP address is \textit{hierarchically addressed}
+\end{itemize}
+
+\subsubsection{IP Address Class}
+\begin{itemize}
+	\item \textbf{ICANN}(Internet Corporation for Assigned Names and Numbers): allocates addresses, manages DNS, assigns domain names, resolves disputes
+	\item IP: \textit{network ID} + \textit{host ID}
+	\begin{itemize}
+		\item \textit{Network ID}: ID representing a network group, or a group of hosts
+		\item \textit{Host ID}: ID of each host in a network group
+	\end{itemize}
+	\item Three classes: A, B, C
+	\begin{itemize}
+		\item Class A: starts with bit 0, network 7 bits + host 24 bits (First byte 0 \(\sim\) 127)
+		\item Class B: starts with bit 10, network 14 bits + host 16 bits (First byte 128 \(\sim\) 191)
+		\item Class C: starts with bit 110, network 21 bits + host 8 bits (First byte 192 \(\sim\) 223)
+	\end{itemize}
+\end{itemize}
+
+\subsubsection{Subnets}
+\begin{itemize}
+	\item \textbf{Subnet}: a logical sub-division of an IP network
+	\item Datagram forwarding is performed by routers
+	\item Hosts in the same network can reach each other without intervening router
+	\item Too many hosts in a network may increase maintenance overhead
+	\item \textit{Divide and conquer}
+	\item Division of IP address: Host ID = Subnet number + Host number
+	\item Deciding the bit size of subnet number
+	\begin{itemize}
+		\item \textit{Subnet mask}: Indicates the bits that will be used as the network number
+		\item If the bit at some position is 1, the bit will be used as the network number
+		\item Ex. 255.255.255.0 \(\rightarrow\) 24 bits will be used as the network number
+		\item The actual bit size of the subnet number will be: number of 1s in subnet mask - bit size of network ID (depending on IP address class)
+	\end{itemize}
+\end{itemize}
+
+\subsubsection{Classless Inter-Domain Routing (CIDR)}
+\begin{itemize}
+	\item \textit{Supernetting}
+	\item Limitations of IP address classes
+	\begin{itemize}
+		\item Class A: 128 possible network IDs, too small
+		\item Class B: approximately 16,000 network IDs \(\rightarrow\) small nowadays
+		\item Class C: Only 256 possible hosts, too small
+	\end{itemize}
+	\item CIDR address format: \texttt{A.B.C.D/x} where \texttt{x} is the number of bits in the network portion of address
+	\item Multiple class C addresses can be grouped together to function as a single network group
+	\item The hosts in each class C address can be assigned to individual hosts inside the network
+\end{itemize}
+
+\subsection{Datagram Forwarding}
 
 \newpage
-\subsection{Datagram Forwarding}
+
 
 \subsection{Dynamic Host Configuration Protocol}
 
