@@ -230,11 +230,44 @@
 \end{itemize}
 
 \subsection{Datagram Forwarding}
+\begin{itemize}
+	\item IP packets are often called datagrams, hence IP network is often called datagram network
+	\item IP network has no call setup (recall that TCP had handshakes)
+	\item Router looks at the destination address in the datagram and decides the next route for the datagram
+	\item Routers don't have any state about end-to-end connections
+	\item 2 methods of datagram forwarding
+	\item \textit{Destination based forwarding}: Based only on destination IP address (traditional)
+	\begin{itemize}
+		\item What is the next most appropriate node, considering the destination address?
+	\end{itemize}
+	\item \textit{Generalized forwarding}: Based on any set of header field values (SDN)
+	\begin{itemize}
+		\item Generalized, in the sense that factors other than the destination address can be taken into account when the datagram is forwarded
+		\item For instance, load balancing, congestion etc. can be taken into account
+		\item This is made possible by software defined networks
+		\item More about this later
+	\end{itemize}
+\end{itemize}
 
-\newpage
-
+\subsubsection{Destination Based Forwarding}
+\begin{itemize}
+	\item When a datagram arrives, the router will look at the destination address
+	\item Then with the local forwarding table, the router will decide the output link
+	\item But since there are \(2^{32}\) IP addresses, it is inefficient to store all of them inside the table
+	\item Instead, it will only contain the \textit{network ID}
+	\item When the datagram is forwarded to the destination network, the destination network will forward the datagram to the host
+	\item Can we do better? There are \(2^{21}\) class C addresses...
+	\item The router will send a range of destination addresses to a single output link
+	\item \textbf{Longest prefix matching}: when looking for a forwarding table entry for given destination address, use the \textit{longest} address prefix that matches the destination address
+	\begin{itemize}
+		\item The longest matching prefix will have more information about the destination
+		\item So the longest matching prefix will be the most appropriate output link
+	\end{itemize}
+\end{itemize}
 
 \subsection{Dynamic Host Configuration Protocol}
+
+\newpage
 
 \subsection{Network Address Translation}
 
