@@ -74,7 +74,7 @@
 		\item When a neighbor changes, link goes up or down (activated/deactivated)
 		\item Periodically
 	\end{itemize}
-	\item The LSA is broadcast to all routers in the network
+	\item The LSA is broadcast to \textbf{all routers} in the network
 	\item Based on LSA from all other nodes, each router constructs the complete topology
 	\item Least cost paths between two nodes are computed by \textbf{Dijkstra's algorithm}
 \end{enumerate}
@@ -99,10 +99,148 @@
 \end{enumerate}
 
 \subsection{Distance Vector Routing}
+\subsubsection{Bellman-Ford Equation}
+\begin{itemize}
+	\item Let \(d_x(y)\) be the cost of the least-cost path from \(x\) to \(y\)
+	\item Then,
+	\[
+		d_x(y) = \min_{v\in N(x)}\{d_v(y) + c(x, v)\}
+	\]
+\end{itemize}
+
+\subsubsection{Distance Vector Algorithm}
+\begin{itemize}
+	\item Node \(x\) initially
+	\begin{itemize}
+		\item Knows cost to each neighbor \(v\): \(c(x, v)\)
+		\item Maintains its neighbors' distance vectors. For \(v\in N(x)\), node \(x\) maintains
+		\[
+			d_v = \{d_v(y) : y\in N\}
+		\]
+	\end{itemize}
+	\item From time to time, each node sends its own distance vector estimate to neighbors
+	\item When \(x\) receives new distance vector estimate from neighbor, it updates its own distance vector using Bellman-Ford equation
+	\[
+		d_x(y) \leftarrow \min_{v \in N(x)} \{d_v(y) + c(x, v)\} \text{ for each node } y\in N
+	\]
+	\item Each node
+	\begin{itemize}
+		\item \textit{Waits} for changes in local link cost or messages from neighbor
+		\item \textit{Recompute}s estimates
+		\item If distance vector to any destination has changed, \textit{notifies} neighbors
+	\end{itemize}
+\end{itemize}
+
+\paragraph{Good News Travels Fast}
+\begin{itemize}
+	\item When link cost changes,
+	\begin{itemize}
+		\item Nodes detect local link cost change
+		\item Nodes update routing info, and recalculates distance vector
+		\item If distance vector changes, notify neighbors
+	\end{itemize}
+	\item Link cost decrease travels fast to other nodes
+	\item Link cost increase travels slowly to other nodes - \textit{count to infinity} problem
+	\begin{itemize}
+		\item Takes a lot of iterations before algorithm stabilizes 
+	\end{itemize}
+\end{itemize}
+
+\subsubsection{Link State vs Distance Vector}
+\begin{center}
+	\begin{tabular}{l|l}
+		\textbf{Link State} & \textbf{Distance Vector} \\ \hline
+		Incremental updates & Entire routing table is sent as an update \\
+		Fast convergence & Slow convergence \\
+		Updates are broadcast to entire network & Updates are sent to directly connected neighbor only \\
+		Routers know the entire network topology of that area & Routers don't know the entire network topology\\
+		No routing loops & Count to infinity problem\\
+		Complex configuration (for large network) & Simple configuration \\
+		Example: \textit{OSPF} (Open Shortest Path First) & Example: \textit{RIP} (Routing Information Protocol)
+	\end{tabular}
+\end{center}
 
 \subsection{Intra-AS Routing: OSPF}
+\subsubsection{Scalability of Routing}
+\begin{itemize}
+	\item So far, we have assumed that all routers are identical and the network is `flat'
+	\item In practice, we have billions of destinations. We can't store all destinations in routing tables, and routing table exchange would swamp links
+	\item There are \textbf{scalability issues} in routing
+	\item Administrative autonomy
+	\begin{itemize}
+		\item Internet is a network of networks
+		\item Each network admin may want to control routing in its own network
+	\end{itemize}
+\end{itemize}
+
+\subsubsection{Autonomous System}
+\begin{itemize}
+	\item Aggregate routers into regions known as \textbf{autonomus system}s (AS)
+	\item \textit{Autonomous system} is a collection of connected Internet protocol routing prefixes under the control of one or more network operators on behalf of a \textit{single administrative entity}
+\end{itemize}
+
+\paragraph{Intra-AS Routing}
+\begin{itemize}
+	\item Routing among hosts, routers in same AS (network)
+	\item All routers in AS must run the same intra-domain protocol
+	\item Routers in different AS can run different intra-domain routing protocol
+	\item Gateway router (border router) at the edge of its own AS has links to routers in other AS
+	\item RIP (distance vector), OSPF (link state)
+\end{itemize}
+
+\paragraph{Inter-AS Routing}
+\begin{itemize}
+	\item Routing among multiple AS
+	\item Gateway routers perform inter-domain routing (as well as intra-domain routing)
+	\item BGP (path vector)
+\end{itemize}
+
+\paragraph{Interconnected AS}
+\begin{itemize}
+	\item Forwarding table is configured by both intra-AS and inter-AS routing algorithm
+	\begin{itemize}
+		\item Intra-AS routing algorithm determines entries for destinations within the AS
+		\item Inter-AS and intra-AS algorithm determine entries for external destinations
+	\end{itemize}
+\end{itemize}
+
+\subsubsection{Routing Protocols}
+\paragraph{Open Shortest Path First (OSPF)}
+\begin{itemize}
+	\item Most common intra-AS routing protocol
+	\item `open': publicly available open protocol (documentation available)
+	\item Uses link state algorithm
+	\begin{itemize}
+		\item LSAs to all other routers in entire AS - carried directly over IP
+		\item Topology map is known at each node
+		\item Route computation using Dijkstra's algorithm
+	\end{itemize}
+	\item Security issue: all OSPF messages should be authenticated, to prevent malicious intrusion
+	\begin{itemize}
+		\item OSPF packet contains authentication type and authentication
+		\item If authentication fails, the message is ignored
+		\item \textit{Black hole attack}: sends false information about shortest paths, which may cause congestion
+	\end{itemize}
+\end{itemize}
+
+\paragraph{Hierarchical OSPF}
+\begin{itemize}
+	\item Hierarchical OSPF in large domains
+	\item Minimizes routing update traffic
+	\item Localizes the impact of topology changes to an area
+	\item \textit{Two level hierarchy}: local area, backbone
+	\begin{itemize}
+		\item LSAs are only shared in the same area
+		\item Each node has detailed area topology, only knows direction (shortest path) to nets in other areas
+	\end{itemize}
+	\item Area border routers: summarize distances to nets in own area, advertise to other area border routers
+	\item Backbone routers: run OSPF routing limited to backbone area, and connect to other AS
+\end{itemize}
 
 \subsection{Inter-AS Routing: BGP}
+
+\newpage
+
 
 \subsection{Software Defined Networking}
 
@@ -110,4 +248,3 @@
 
 \subsection{Internet Control Message Protocol}
 
-\newpage
