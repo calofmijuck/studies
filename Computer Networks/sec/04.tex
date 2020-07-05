@@ -266,7 +266,66 @@
 \end{itemize}
 
 \subsection{Dynamic Host Configuration Protocol}
+\begin{itemize}
+	\item Host dynamically obtains its IP address from the network server when it joins the network
+	\begin{itemize}
+		\item Allows reuse of addresses (only hold the address while connected)
+		\item Can renew its lease on addresses in use
+		\item Support for mobile users who want to join the network
+		\item Dynamic allocation of IP addresses for each connected user
+	\end{itemize}
+\end{itemize}
 
+\subsubsection{DHCP Overview}
+\begin{enumerate}
+	\item \textbf{DHCP Discover}: host broadcast
+	\begin{itemize}
+		\item Broadcast: Is there a DHCP server out there?
+		\item Destination address: \texttt{255.255.255.255} (broadcast to all devices on network)
+	\end{itemize}
+	\item \textbf{DHCP Offer}: DHCP server responds
+	\begin{itemize}
+		\item Broadcast: I'm a DHCP server, here's an IP address you can use!
+		\item \texttt{yiaddrr} contains the IP address to use
+		\item The client checks transaction ID to realize that this is a response to its request\footnote{DHCP offer is also broadcast to all devices on network}
+	\end{itemize}
+	\item \textbf{DHCP Request}: Host requests IP address
+	\begin{itemize}
+		\item Broadcast: OK, I'll take that IP address!
+	\end{itemize}
+	\item \textbf{DHCP ACK}: DHCP server sends IP address
+	\begin{itemize}
+		\item Broadcast: OK, you can use that IP address!
+	\end{itemize}
+\end{enumerate}
+\begin{itemize}
+	\item IP obtained from DHCP has a \textit{lifetime}. Should be renewed before expiration
+	\item Why take 4 steps? Can't we use the address given from the offer?
+	\begin{itemize}
+		\item There may be multiple DHCP servers on the network
+		\item Client will receive multiple offers from multiple servers
+		\item The client decides on which offer to take, and requests it to the server
+		\item \textit{Broadcast} - the decision will be broadcast, to let other devices on the network know about this decision
+	\end{itemize}
+	\item DHCP server will give client's IP address, IP address of the first-hop router for client, and name/address of DNS server - as these information are necessary for the client to connect to the network
+\end{itemize}
+
+
+\subsubsection{Advantages of DHCP}
+\begin{itemize}
+	\item Efficient use of IP addresses
+	\begin{itemize}
+		\item IPv4 address exhaustion
+		\item If every device used static IPv4 addresses, each device would have to hold on to that address even when it is not connected to the network
+		\item IP is also considered as a network resource, should be used efficiently
+	\end{itemize}
+	\item Allows the ``plug \& play" of a computer system
+	\begin{itemize}
+		\item In the past, we had to manually type in static IP addresses, subnet masks, default gateway
+		\item Dynamic IP, DNS server address allocation provides abstraction for people without network knowledge
+		\item Plug in the network cable and everything is set up automatically
+	\end{itemize}
+\end{itemize}
 \newpage
 
 \subsection{Network Address Translation}
