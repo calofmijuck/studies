@@ -1,9 +1,102 @@
 \section{Network Layer II}
 \subsection{Introduction to Routing}
+\begin{itemize}
+	\item \textbf{Routing}: determine the route taken by packets from source to destination
+	\item \textbf{Forwarding}: move packets from router's input to appropriate router output
+	\item \textbf{Control plane}: routing algorithm determines end to end path through network
+	\item Data plane: forwarding table determines local forwarding at this router
+	\item \textit{Per-router control plane}: individual routing algorithm components in each and every router interact with each other in control plane to compute forwarding tables
+	\item \textit{Logically centralized control plane}: a distinct (typically remote) controller interacts with local control agents (CA) in routers to compute forwarding tables
+	\begin{itemize}
+		\item A remote controller controls the forwarding process
+		\item Forwarding path decided with more information, thus efficient
+		\item Often used in software defined networks
+	\end{itemize}
+\end{itemize}
 
-\newpage
+\subsubsection{Routing Protocols}
+\begin{itemize}
+	\item \textbf{Goal of Routing}: determine `good' paths from source to destination through network of routers
+	\begin{itemize}
+		\item \textit{Path}: a sequence of routers that packets will traverse, in going from initial source to final destination
+		\item Paths that take the least cost, that are fastest, that are the least congested
+	\end{itemize}
+	\item Abstraction as a graph \(G = (N, E)\) (can be a directed graph)
+	\begin{itemize}
+		\item \(N\) is the set of vertices - \textit{routers} in this case
+		\item \(E\) is the set of edges - \textit{links} in this case
+		\item Cost function \(c: N\times N \rightarrow \mathbb{R}\) where \(c(v, w)\) is the cost of using the link between router \(v\) and \(w\)
+	\end{itemize}
+\end{itemize}
+
+\subsubsection{Routing Algorithm Classification}
+\paragraph{Static vs Dynamic}
+\begin{itemize}
+	\item Static
+	\begin{itemize}
+		\item Routes are changed manually by the administrator
+	\end{itemize}
+	\item Dynamic
+	\begin{itemize}
+		\item Routes are changed more quickly
+		\item Periodic update in response to link cost changes
+	\end{itemize}
+\end{itemize}
+
+\paragraph{Global vs Decentralized}
+\begin{itemize}
+	\item Global
+	\begin{itemize}
+		\item All routers have complete topology of the network and all link cost information
+		\item \textit{Link state algorithms} 
+	\end{itemize}
+	\item Decentralized
+	\begin{itemize}
+		\item Router knows directly connected neighbors
+		\item Router knows the path costs to other nodes, and the next router that should be taken to reach some other node
+		\item \textit{Distance vector algorithm}
+	\end{itemize}
+\end{itemize}
 
 \subsection{Link State Routing}
+\begin{itemize}
+	\item Need to know the complete topology of the network - \textbf{link state advertisement}(LSA) message
+	\begin{itemize}
+		\item Contains neighbor node information
+		\item Contains link information to others (capacity, delay, etc.)
+	\end{itemize}
+\end{itemize}
+
+\paragraph{Operation}
+\begin{enumerate}
+	\item A router constructs LSA
+	\begin{itemize}
+		\item When a neighbor changes, link goes up or down (activated/deactivated)
+		\item Periodically
+	\end{itemize}
+	\item The LSA is broadcast to all routers in the network
+	\item Based on LSA from all other nodes, each router constructs the complete topology
+	\item Least cost paths between two nodes are computed by \textbf{Dijkstra's algorithm}
+\end{enumerate}
+
+\subsubsection{Dijkstra's Algorithm}
+\begin{itemize}
+	\item Single source shortest path algorithm
+	\item Computes least cost paths from the source to all other nodes
+	\item \(k\) iterations will give the least cost path to \(k\) destinations
+\end{itemize}
+
+\paragraph{Steps}
+\begin{enumerate}
+	\item Let \(S = \{u\}\) (source)
+	\item For all \(v \in N(S)\) (neighbor nodes) set \(d(v) = c(u, v)\). If \(v\notin N(S)\), set \(d(v) = \infty\)
+	\item \texttt{while} \(S \neq N\)
+	\begin{enumerate}
+		\item Find \(w\notin S\) such that \(d(w)\) is minimum, and \(S \leftarrow S\cup \{w\}\)
+		\item For all \(x\in N(w)\) and \(x\notin S\), update \(d(x) = \min\{d(x), d(w) + c(w, x)\}\)
+	\end{enumerate}
+	\item \(d(x)\) contains the cost of shortest path from \(u\) to \(x\)
+\end{enumerate}
 
 \subsection{Distance Vector Routing}
 
@@ -16,3 +109,5 @@
 \subsection{OpenFlow}
 
 \subsection{Internet Control Message Protocol}
+
+\newpage
