@@ -310,7 +310,6 @@
 	\item DHCP server will give client's IP address, IP address of the first-hop router for client, and name/address of DNS server - as these information are necessary for the client to connect to the network
 \end{itemize}
 
-
 \subsubsection{Advantages of DHCP}
 \begin{itemize}
 	\item Efficient use of IP addresses
@@ -326,8 +325,97 @@
 		\item Plug in the network cable and everything is set up automatically
 	\end{itemize}
 \end{itemize}
-\newpage
 
 \subsection{Network Address Translation}
+\begin{itemize}
+	\item In the past, each household used a single IP for its desktop computer. Nowadays, each household has more network devices such as smartphones etc. How to we assign IP addresses to all the devices?
+	\item \textit{Motivation}: local network uses just one IP address as far as outside world is concerned...
+	\begin{itemize}
+		\item Range of IP addresses is not needed from ISP - just one IP address for all devices
+		\item But this IP address gets translated inside the local network, without notifying the outside world
+		\item Can change ISP without changing addresses of devices in local network
+		\item Devices inside local network is not explicitly addressable or visible by the outside world (security)
+	\end{itemize}
+\end{itemize}
+
+\subsubsection{Network Address Translation}
+\begin{itemize}
+	\item \textbf{Private IP}: Meaningful only in the local/home network
+	\begin{itemize}
+		\item A class: \texttt{10.x.x.x}
+		\item B class: \texttt{172.16.x.x} \(\sim\) \texttt{172.31.x.x}
+		\item C class: \texttt{192.168.0.x} \(\sim\) \texttt{192.168.255.x}
+	\end{itemize}
+	\item All datagrams leaving the local network have the same single source NAT IP address (\textbf{public IP}), but different source port numbers
+	\item Datagrams with source or destination in the network use private IP for source and destination
+\end{itemize}
+
+\begin{enumerate}
+	\item Host in local network sends datagram to destination, using \textit{private IP} as source
+	\item The router uses \textbf{NAT translation table} to change datagram source address from private IP to \textit{public IP} (update table if necessary)
+	\item Reply arrives with destination address using the \textit{public IP}
+	\item The router uses NAT translation table again to change the destination address of datagram from public IP to \textit{private IP}
+	\item The host in local network receives the datagram
+\end{enumerate}
 
 \subsection{IPv6}
+\begin{itemize}
+	\item Motivation
+	\begin{itemize}
+		\item DHCP, NAT partially solved the IPv4 address exhaustion issue, but it isn't the fundamental solution
+		\item The number of addresses should be increased
+	\end{itemize}
+	\item Additional Motivation
+	\begin{itemize}
+		\item Network technology has advanced since the use of IPv4
+		\item Why not change the header format to speed up processing and forwarding?
+		\item Header changes to facilitate QoS
+	\end{itemize}
+\end{itemize}
+
+\subsubsection{IPv6 Datagram Format}
+\begin{itemize}
+	\item Uses fixed-length 40 byte header
+	\item Comparison with IPv4 datagram
+	\begin{itemize}
+		\item IPv4 used 20 bytes, with 8 bytes for source and destination. Other fields consist the remaining 12 bytes
+		\item IPv6 address is 16 bytes, using 32 bytes for source and destination address - this is inevitable, and the remaining 8 bytes are used to contain other values, which is a \textit{decrease}
+	\end{itemize}
+	\item No fragmentation allowed (fragmentation offset, flag, id is gone)
+	\item \textit{version}: either v4 or v6
+	\item \textit{priority}: identify priority among datagrams in flow
+	\begin{itemize}
+		\item Router does priority scheduling
+		\item On buffer overflow, throw away packets with lower priority
+	\end{itemize}
+	\item \textit{flow label}: identify datagrams in same `flow'
+	\begin{itemize}
+		\item IPv4 used to consider each datagrams independently
+		\item Define a flow label between source/destination processes, and the datagrams between these processes will have the same flow label
+		\item Treats subsequent IP datagrams as a whole
+		\item Important in software defined networks (SDN)
+	\end{itemize}
+	\item \textit{next header}: identify upper layer protocol for data (UDP/TCP)
+	\item \textit{hop limit}: same as TTL in IPv4
+	\item Checksum has been removed entirely to reduce processing time at each hop
+	\begin{itemize}
+		\item We use optical fibers now - reduced error rate
+		\item TTL value decreases every hop, thus checksum has to be recalculated every hop
+		\item Checking and recalculating checksum is an overhead
+	\end{itemize}
+\end{itemize}
+
+\subsubsection{Migration from IPv4 to IPv6}
+\begin{itemize}
+	\item Not all routers can be upgraded simultaneously
+	\item How to operate with mixed IP versions?
+	\item \textbf{Tunneling}: IPv6 datagram is carried as payload in IPv4 datagram among IPv4 routers
+	\begin{itemize}
+		\item Pad IPv4 header onto the IPv6 datagram
+		\item The IPv6 routers should provide dual protocol
+	\end{itemize}
+	\item Long time for deployment!
+	\item Necessary for the future - preparation for the IoT era, more objects will need IP addresses
+\end{itemize}
+
+\pagebreak
